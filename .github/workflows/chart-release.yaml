@@ -8,8 +8,7 @@ jobs:
   release-ip-masq-agent-chart:
     name: Release ip-masq-agent Helm Charts
     permissions:
-      contents: read
-      id-token: "write"
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

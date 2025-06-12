@@ -6,9 +6,9 @@ certIssuer:
   nameOverride: ""
   fullnameOverride: ""
   email: "" # This is a required field if create == true
-  name: lets-encrypt-http-issuer
+  name: lets-encrypt-http-issuer-production
   secretName: letsencrypt-credentials
-  server: https://acme-staging-v02.api.letsencrypt.org/directory
+  server: https://acme-v02.api.letsencrypt.org/directory
   httpResolver:
     enabled: true
     ingressClass: traefik

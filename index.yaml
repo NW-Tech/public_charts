@@ -1,6 +1,37 @@
 apiVersion: v1
 entries:
+  cluster:
+  - apiVersion: v2
+    created: "2025-06-12T15:02:58.084609318Z"
+    description: Deploys and manages a CloudNativePG cluster and its associated resources.
+    digest: a060b5c0e95e8461682185c828a6c568dcb92148689bac69df2987510c1c191d
+    home: https://cloudnative-pg.io
+    icon: https://raw.githubusercontent.com/cloudnative-pg/artwork/main/cloudnativepg-logo.svg
+    keywords:
+    - postgresql
+    - postgres
+    - database
+    maintainers:
+    - email: itay+cloudnativepg-charts+github.com@grudev.com
+      name: itay-grudev
+    name: cluster
+    sources:
+    - https://github.com/cloudnative-pg/charts
+    type: application
+    urls:
+    - https://github.com/NW-Tech/public_charts/releases/download/cluster-0.3.1/cluster-0.3.1.tgz
+    version: 0.3.1
   cluster-issuer:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2025-06-12T15:02:58.292425938Z"
+    description: A Helm chart for Kubernetes
+    digest: 949d2c838af5c80ac0d10fa569adb2f323f520620f2c4bf95658bbb11ac43a9e
+    name: cluster-issuer
+    type: application
+    urls:
+    - https://github.com/NW-Tech/public_charts/releases/download/cluster-issuer-0.1.1/cluster-issuer-0.1.1.tgz
+    version: 0.1.1
   - apiVersion: v2
     appVersion: 1.16.0
     created: "2025-06-12T14:54:48.443126796Z"
@@ -22,4 +53,4 @@ entries:
     urls:
     - https://github.com/NW-Tech/public_charts/releases/download/ip-masq-agent-0.1.0/ip-masq-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2025-06-12T14:54:48.443132056Z"
+generated: "2025-06-12T15:02:58.292435166Z"

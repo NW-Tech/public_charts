@@ -9,6 +9,7 @@ jobs:
     name: Release ip-masq-agent Helm Charts
     permissions:
       contents: read
+      id-token: "write"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,7 +25,7 @@ jobs:
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.7.0
         with:
-          charts_dir: ip-masq-agent
+          charts_dir: ./
           skip_existing: true
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

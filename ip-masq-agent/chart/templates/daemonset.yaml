@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "ip_masq_agent.fullname" . }}
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      {{- include "ip_masq_agent.selectorLabels" . | nindent 6 }}
+            # k8s-app: ip-masq-agent
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}  
+      labels:
+        {{- include "ip_masq_agent.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        # labels:
+        #     k8s-app: ip-masq-agent
+    spec:
+      hostNetwork: true
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}" 
+          args:
+              - --masq-chain=IP-MASQ
+              # To non-masquerade reserved IP ranges by default, uncomment the line below.
+              # - --nomasq-all-reserved-ranges
+          securityContext:
+              privileged: true
+          volumeMounts:
+              - name: config
+                mountPath: /etc/config
+      volumes:
+        - name: config
+          configMap:
+              # Note this ConfigMap must be created in the same namespace as the
+              # daemon pods - this spec uses kube-system
+              name: {{ .Chart.Name }}
+              optional: true
+              items:
+                  # The daemon looks for its config in a YAML file at /etc/config/ip-masq-agent
+                  - key: config
+                    path: ip-masq-agent
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+          

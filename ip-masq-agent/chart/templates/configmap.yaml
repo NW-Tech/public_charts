@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ip-masq-agent
+  labels:
+    {{- include "ip_masq_agent.labels" . | nindent 4 }}
+data:
+  config: |
+    {{- toYaml .Values.configMap.data | nindent 4 }}

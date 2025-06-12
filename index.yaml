@@ -1,5 +1,16 @@
 apiVersion: v1
 entries:
+  cluster-issuer:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2025-06-12T14:54:48.443126796Z"
+    description: A Helm chart for Kubernetes
+    digest: 8f1d0a82c0b2a149aecafec7413882699df128c5ce9b09486dd84d728c812f24
+    name: cluster-issuer
+    type: application
+    urls:
+    - https://github.com/NW-Tech/public_charts/releases/download/cluster-issuer-0.1.0/cluster-issuer-0.1.0.tgz
+    version: 0.1.0
   ip-masq-agent:
   - apiVersion: v2
     appVersion: 2.12.0
@@ -11,4 +22,4 @@ entries:
     urls:
     - https://github.com/NW-Tech/public_charts/releases/download/ip-masq-agent-0.1.0/ip-masq-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2025-06-12T14:07:22.065193118Z"
+generated: "2025-06-12T14:54:48.443132056Z"

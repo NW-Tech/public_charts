@@ -50,3 +50,4 @@ spec:
   serviceTemplate:
     {{- . | toYaml | nindent 4 }}
   {{- end }}
+{{- end }}

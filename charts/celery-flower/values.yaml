@@ -1,0 +1,51 @@
+# Default values for celery-flower.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: mher/flower
+  pullPolicy: Always
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 5555
+
+ingress:
+  enabled: false
+
+configMap:
+  enabled: true
+  data:
+    CELERY_BROKER_USER: celery_broker_user
+    CELERY_BACKEND_USER: celery_backend_user
+    CELERY_BACKEND_DB: celery_backend_db
+
+    CELERY_DB_HOST: celery_db_host
+
+secrets:
+  enabled: true
+  data:
+    celery-credentials:
+      CELERY_BACKEND_PASSWORD: # from_cd
+      CELERY_BROKER_PASSWORD: # from_cd
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

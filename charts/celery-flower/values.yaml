@@ -29,9 +29,6 @@ service:
   type: ClusterIP
   port: 5555
 
-ingress:
-  enabled: false
-
 resources: {}
 
 nodeSelector: {}

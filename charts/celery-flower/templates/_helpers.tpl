@@ -2,7 +2,7 @@
 Expand the name of the chart.
 */}}
 {{- define "celery-flower.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | lower }}
 {{- end }}
 
 {{/*
@@ -12,13 +12,13 @@ If release name contains chart name it will be used as a full name.
 */}}
 {{- define "celery-flower.fullname" -}}
 {{- if .Values.fullnameOverride }}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" | lower }}
 {{- else }}
 {{- $name := default .Chart.Name .Values.nameOverride }}
 {{- if contains $name .Release.Name }}
-{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" | lower }}
 {{- else }}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" | lower }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -27,7 +27,7 @@ If release name contains chart name it will be used as a full name.
 Create chart name and version as used by the chart label.
 */}}
 {{- define "celery-flower.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" | lower }}
 {{- end }}
 
 {{/*
@@ -47,7 +47,7 @@ Selector labels
 */}}
 {{- define "celery-flower.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "celery-flower.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/instance: {{ .Release.Name | lower }}
 {{- end }}
 
 {{/*
@@ -55,8 +55,8 @@ Create the name of the service account to use
 */}}
 {{- define "celery-flower.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "celery-flower.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "celery-flower.fullname" .) .Values.serviceAccount.name | lower }}
 {{- else }}
-{{- default "default" .Values.serviceAccount.name }}
+{{- default "default" .Values.serviceAccount.name | lower }}
 {{- end }}
 {{- end }}

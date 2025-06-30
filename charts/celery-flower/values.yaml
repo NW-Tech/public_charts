@@ -1,12 +1,16 @@
 # Default values for celery-flower.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-celery_flower:
-  secrets:
-    data:
-      flower_credentials:
-        FLOWER_BROKER_API: # from dependency
-        CELERY_BROKER_URL: # from dependency 
+
+rabbitmq:
+  host: service-broker-rabbitmq
+  port: 5672
+  user: celery_broker_user
+  vhost: api
+
+secrets:
+  celery-credentials:
+    CELERY_BROKER_PASSWORD: # from dependency
 
 replicaCount: 1
 

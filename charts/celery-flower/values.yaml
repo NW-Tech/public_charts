@@ -1,6 +1,12 @@
 # Default values for celery-flower.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+celery_flower:
+  secrets:
+    data:
+      flower_credentials:
+        FLOWER_BROKER_API: # from dependency
+        CELERY_BROKER_URL: # from dependency 
 
 replicaCount: 1
 
@@ -25,13 +31,6 @@ service:
 
 ingress:
   enabled: false
-
-secrets:
-  enabled: true
-  data:
-    flower-credentials:
-      FLOWER_BROKER_API: # from dependency
-      CELERY_BROKER_URL: # from dependency 
 
 resources: {}
 

@@ -29,9 +29,24 @@ podSecurityContext: {}
 
 securityContext: {}
 
+containerPort: 5555
+
+ports:
+  - containerPort: 5555
+    name: http
+    hostPort: 5555
+    protocol: TCP
+
 service:
-  type: ClusterIP
-  port: 5555
+  ports:
+    - port: 5555
+      targetPort: http
+      protocol: TCP
+      name: http
+  type: LoadBalancer
+  loadBalancerIP: # from dependency
+  annotations:
+    networking.gke.io/load-balancer-type: Internal
 
 resources: {}
 

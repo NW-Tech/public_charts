@@ -9,8 +9,7 @@ rabbitmq:
   vhost: api
 
 secrets:
-  celery-credentials:
-    CELERY_BROKER_PASSWORD: # from dependency
+  CELERY_BROKER_PASSWORD: # from dependency
 
 replicaCount: 1
 

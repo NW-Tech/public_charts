@@ -34,10 +34,10 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ include "celery-flower.name" $ }}-flower-credentials
+          {{- with .Values.ports }}
           ports:
-            - name: http
-              containerPort: 5555
-              protocol: TCP
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           livenessProbe:
             httpGet:
               path: /

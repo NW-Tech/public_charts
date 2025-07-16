@@ -3,6 +3,16 @@ entries:
   celery-flower:
   - apiVersion: v2
     appVersion: 2.0.1
+    created: "2025-07-16T10:37:46.372390287Z"
+    description: A Helm chart for Kubernetes
+    digest: f3870384f45cc46c1ed1e1cb2907889e5e39daeabf21895a50541577af9081b8
+    name: celery-flower
+    type: application
+    urls:
+    - https://github.com/NW-Tech/public_charts/releases/download/celery-flower-0.1.1/celery-flower-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 2.0.1
     created: "2025-06-30T17:26:04.835003199Z"
     description: A Helm chart for Kubernetes
     digest: 85f58c8d152a7e0e9fe150f6c6d82d316628d5c90882515e40ad1a93a60e7f4c
@@ -134,4 +144,4 @@ entries:
     urls:
     - https://github.com/NW-Tech/public_charts/releases/download/ip-masq-agent-0.1.0/ip-masq-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2025-06-30T17:26:04.835021413Z"
+generated: "2025-07-16T10:37:46.372411447Z"

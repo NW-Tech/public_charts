@@ -154,4 +154,15 @@ entries:
     urls:
     - https://github.com/NW-Tech/public_charts/releases/download/ip-masq-agent-0.1.0/ip-masq-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2025-07-16T16:05:43.615012361Z"
+  nginx-react:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2025-08-29T13:43:04.472057093Z"
+    description: A Helm chart for Kubernetes
+    digest: 398e87b13b0a7e48a3e7674c679016f5c6a603526931dec409956a5c7b4d65bc
+    name: nginx-react
+    type: application
+    urls:
+    - https://github.com/NW-Tech/public_charts/releases/download/nginx-react-0.1.0/nginx-react-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-08-29T13:43:04.472083562Z"

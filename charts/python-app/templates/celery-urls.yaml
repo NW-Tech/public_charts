@@ -1,0 +1,9 @@
+{{- if and .Values.secrets.enabled (hasKey .Values.secrets.data "celery-credentials") (hasKey (index .Values.secrets.data "celery-credentials") "CELERY_BROKER_PASSWORD") (hasKey (index .Values.secrets.data "celery-credentials") "CELERY_BACKEND_PASSWORD") }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "app.name" . }}-celery-urls
+stringData:
+  CELERY_BACKEND_URL: 'db+postgresql+psycopg2://{{ .Values.configMap.data.CELERY_BACKEND_USER }}:{{ (index .Values.secrets.data "celery-credentials").CELERY_BACKEND_PASSWORD }}@{{ .Values.configMap.data.CELERY_DB_HOST }}/{{ .Values.configMap.data.CELERY_BACKEND_DB }}'
+  CELERY_BROKER_URL: 'amqp://{{ .Values.configMap.data.CELERY_BROKER_USER }}:{{ (index .Values.secrets.data "celery-credentials").CELERY_BROKER_PASSWORD }}@{{ include "app.name" . }}-rabbitmq:5672'
+{{- end -}}

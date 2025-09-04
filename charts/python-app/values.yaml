@@ -1,0 +1,215 @@
+# Default values for app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+cluster:
+  enabled: true
+
+  version:
+    postgresql: "17"
+
+  type: postgresql
+
+  cluster:
+    instances: 2
+    storage:
+      size: 15Gi
+    walStorage:
+      size: 10Gi
+    monitoring:
+      enabled: true
+    initdb:
+      database: # to_set
+      owner: # to_set
+      secret:
+        name: pg-app-credentials
+
+    postgresql:
+      parameters:
+        pg_stat_statements.max: "10000"
+        pg_stat_statements.track: all
+        max_wal_senders: "10"
+        max_wal_size: 2GB
+        max_replication_slots: "10"
+        max_slot_wal_keep_size: 5GB
+
+    serviceAccountTemplate:
+      metadata:
+        annotations:
+          iam.gke.io/gcp-service-account: # from_cd
+
+    roles:
+      - name: # to_set
+        ensure: present
+        comment: user for microservice
+        login: true
+        superuser: true
+        createdb: true
+        createrole: false
+        inherit: false
+        replication: false
+        bypassrls: false
+        connectionLimit: 50
+        passwordSecret:
+          name: pg-app-credentials
+
+      - name: warehouse_replication
+        ensure: present
+        comment: user for replication
+        replication: true
+        passwordSecret:
+          name: pg-replication-credentials
+
+      - name: open_metadata
+        ensure: present
+        comment: user for open metadata
+        login: true
+        superuser: false
+        createdb: false
+        createrole: false
+        inherit: false
+        replication: false
+        bypassrls: false
+        connectionLimit: 50
+        passwordSecret:
+          name: pg-omd-credentials
+
+  backups:
+    enabled: true
+    secret:
+      create: false
+    provider: google
+    google:
+      path: # to_set
+      bucket: "market-cluster-cnpg-backup"
+      gkeEnvironment: true
+
+    scheduledBackups:
+      - name: daily-backup
+        schedule: "0 0 0 * * *" # Daily at midnight
+
+  poolers:
+    - name: "rw-pooler"
+      type: rw
+      monitoring:
+        enabled: true
+        podMonitor:
+          enabled: true
+      serviceTemplate:
+        metadata:
+          annotations:
+            networking.gke.io/load-balancer-type: Internal
+        spec:
+          type: LoadBalancer
+          loadBalancerIP: # from_cd
+
+postgresRolesSecrets:
+  enabled: true
+  data:
+    pg-app-credentials:
+      username: # to_set
+      password: # from_cd
+    pg-replication-credentials:
+      username: warehouse_replication
+      password: # from_cd
+    pg-omd-credentials:
+      username: open_metadata
+      password: # from_cd
+    current-prod-pg-password:
+      password: #from_cd
+
+rabbitmq:
+  enabled: true
+  networkPolicy:
+    enabled: false
+  image:
+    registry: registry-1.docker.io
+    repository: bitnami/rabbitmq
+  auth:
+    username: celery_broker_user
+    password: # from_cd
+  extraConfiguration: |
+    default_vhost = /
+    default_permissions.configure = .*
+    default_permissions.read = .*
+    default_permissions.write = .*
+
+replicaCount: 1
+
+serviceAccount:
+  create: false
+
+image:
+  repository: # from_cd
+  pullPolicy: IfNotPresent
+  tag: latest
+
+imagePullSecrets: []
+
+containerPort: 8000
+
+ports:
+  - containerPort: 8000
+    name: http
+    protocol: TCP
+
+service:
+  ports:
+    - port: 8000
+      targetPort: http
+      protocol: TCP
+      name: http
+  type: LoadBalancer
+  loadBalancerIP: # from_cd
+  annotations:
+    networking.gke.io/load-balancer-type: Internal
+
+ingress:
+  enabled: false
+
+secrets:
+  enabled: false
+
+configMap:
+  enabled: false
+
+podAnnotations: {}
+
+podSecurityContext:
+  {}
+  # fsGroup: 2000
+
+securityContext:
+  {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+resources:
+  # {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    cpu: 400m
+    memory: 1Gi
+  requests:
+    cpu: 400m
+    memory: 1Gi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 90
+  targetMemoryUtilizationPercentage: 90
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

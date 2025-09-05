@@ -39,20 +39,6 @@ cluster:
           iam.gke.io/gcp-service-account: # from_cd
 
     roles:
-      - name: # to_set
-        ensure: present
-        comment: user for microservice
-        login: true
-        superuser: true
-        createdb: true
-        createrole: false
-        inherit: false
-        replication: false
-        bypassrls: false
-        connectionLimit: 50
-        passwordSecret:
-          name: pg-app-credentials
-
       - name: warehouse_replication
         ensure: present
         comment: user for replication
@@ -88,21 +74,6 @@ cluster:
       - name: daily-backup
         schedule: "0 0 0 * * *" # Daily at midnight
 
-  poolers:
-    - name: "rw-pooler"
-      type: rw
-      monitoring:
-        enabled: true
-        podMonitor:
-          enabled: true
-      serviceTemplate:
-        metadata:
-          annotations:
-            networking.gke.io/load-balancer-type: Internal
-        spec:
-          type: LoadBalancer
-          loadBalancerIP: # from_cd
-
 postgresRolesSecrets:
   enabled: true
   data:
@@ -137,6 +108,8 @@ ports:
     name: http
     protocol: TCP
 
+# By default use an internal load balancer
+# If you wnat to use use another type of service, override in parent
 service:
   ports:
     - port: 8000
@@ -219,12 +192,14 @@ affinity: {}
 #         CELERY_BACKEND_PASSWORD: # from_cd
 #   configMap:
 #     data:
+#       # CONSTRAINT: Please note this value must equal {{Chart.name}}-rabbitmq
 #       CELERY_BROKER_HOST: # to_set
 #   rabbitmq:
 #     auth:
 #       password: # from_cd
 #   celeryFlower:
 #     rabbitmq:
+#       # CONSTRAINT: Please note this value must equal {{Chart.name}}-rabbitmq
 #       host: # to_set
 #     service:
 #       loadBalancerIP: # from_cd

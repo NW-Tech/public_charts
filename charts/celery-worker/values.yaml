@@ -150,6 +150,22 @@ workers:
     autoscaling:
       enabled: false
 
+rabbitmq:
+  enabled: true
+  networkPolicy:
+    enabled: false
+  image:
+    registry: registry-1.docker.io
+    repository: bitnami/rabbitmq
+  auth:
+    username: celery_broker_user
+    password: # from_cd
+  extraConfiguration: |
+    default_vhost = /
+    default_permissions.configure = .*
+    default_permissions.read = .*
+    default_permissions.write = .*
+
 celeryFlower:
   enabled: true
   rabbitmq:

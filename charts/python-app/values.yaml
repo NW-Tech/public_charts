@@ -118,22 +118,6 @@ postgresRolesSecrets:
     current-prod-pg-password:
       password: #from_cd
 
-rabbitmq:
-  enabled: true
-  networkPolicy:
-    enabled: false
-  image:
-    registry: registry-1.docker.io
-    repository: bitnami/rabbitmq
-  auth:
-    username: celery_broker_user
-    password: # from_cd
-  extraConfiguration: |
-    default_vhost = /
-    default_permissions.configure = .*
-    default_permissions.read = .*
-    default_permissions.write = .*
-
 replicaCount: 1
 
 serviceAccount:
@@ -213,3 +197,36 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+# TODO: Uncomment once chart has been deployed
+# celeryWorker:
+#   enabled: false
+#   cluster:
+#     cluster:
+#       serviceAccountTemplate:
+#         metadata:
+#           annotations:
+#             iam.gke.io/gcp-service-account: # from_cd
+#   postgresRolesSecrets:
+#     data:
+#       pg-celery-credentials:
+#         password: # from_cd
+#   image:
+#     repository: # from_cd
+#   secrets:
+#     data:
+#       celery-credentials:
+#         CELERY_BROKER_PASSWORD: # from_cd
+#         CELERY_BACKEND_PASSWORD: # from_cd
+#   configMap:
+#     data:
+#       CELERY_BROKER_HOST: # to_set
+#   rabbitmq:
+#     auth:
+#       password: # from_cd
+#   celeryFlower:
+#     rabbitmq:
+#       host: # to_set
+#     service:
+#       loadBalancerIP: # from_cd
+#     secrets:
+#       CELERY_BROKER_PASSWORD: # from_cd

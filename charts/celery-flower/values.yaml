@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 rabbitmq:
-  host: service-broker-rabbitmq
+  host: # from dependency
   port: 5672
   user: celery_broker_user
   vhost: api
@@ -33,7 +33,6 @@ containerPort: 5555
 ports:
   - containerPort: 5555
     name: http
-    hostPort: 5555
     protocol: TCP
 
 service:

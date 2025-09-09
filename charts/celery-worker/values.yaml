@@ -1,0 +1,170 @@
+# Default values for celery-worker.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+cluster:
+  enabled: true
+
+  version:
+    postgresql: "17"
+
+  type: postgresql
+
+  cluster:
+    instances: 2
+    storage:
+      size: 15Gi
+    walStorage:
+      size: 10Gi
+    monitoring:
+      enabled: true
+    initdb:
+      database: celery_backend_db
+      owner: celery_backend_user
+      secret:
+        name: pg-celery-credentials
+
+    postgresql:
+      parameters:
+        pg_stat_statements.max: "10000"
+        pg_stat_statements.track: all
+        max_wal_senders: "10"
+        max_wal_size: 2GB
+        max_replication_slots: "10"
+        max_slot_wal_keep_size: 5GB
+
+    serviceAccountTemplate:
+      metadata:
+        annotations:
+          iam.gke.io/gcp-service-account: # from_cd
+
+    roles:
+      - name: celery_backend_user
+        ensure: present
+        comment: user for celery
+        login: true
+        superuser: false
+        createdb: true
+        createrole: false
+        inherit: false
+        replication: false
+        bypassrls: false
+        connectionLimit: 50
+        passwordSecret:
+          name: pg-celery-credentials
+
+  poolers:
+    - name: "rw-pooler"
+      type: rw
+      monitoring:
+        enabled: true
+        podMonitor:
+          enabled: true
+
+postgresRolesSecrets:
+  enabled: true
+  data:
+    pg-celery-credentials:
+      username: celery_backend_user
+      password: # from_cd
+
+replicaCount: 1
+
+serviceAccount:
+  create: false
+
+image:
+  repository: # from_cd
+  pullPolicy: IfNotPresent
+  tag: latest
+
+imagePullSecrets: []
+
+containerPort: 8000
+
+service:
+  port: 8000
+  type: ClusterIP
+  httpPortName: web
+
+ingress:
+  enabled: false
+
+secrets:
+  enabled: true
+  data:
+    celery-credentials:
+      CELERY_BROKER_PASSWORD: # from_cd
+      CELERY_BACKEND_PASSWORD: # from_cd
+
+configMap:
+  enabled: true
+  data:
+    CELERY_BROKER_USER: celery_broker_user
+    CELERY_BROKER_HOST: # to_set
+    CELERY_BACKEND_USER: celery_backend_user
+    CELERY_BACKEND_DB: celery_backend_db
+    CELERY_DB_HOST: celery-worker-cluster-pooler-rw-pooler
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+workers:
+  celery-app-worker:
+    enabled: true
+    type: worker
+    queues:
+      - celery
+    command:
+      cmd:
+        - /bin/sh
+        - -c
+        - poetry run celery -A worker.celery_app worker --loglevel=info --concurrency=1
+    autoscaling:
+      enabled: false
+
+  celery-app-scheduler:
+    enabled: true
+    type: beat
+    command:
+      cmd:
+        - /bin/sh
+        - -c
+        - poetry run celery -A worker.celery_app beat -S celery_sqlalchemy_scheduler.schedulers:DatabaseScheduler -l info -s /tmp/celerybeat-schedule --pidfile=/tmp/celery-beat.pid
+
+    autoscaling:
+      enabled: false
+
+rabbitmq:
+  enabled: true
+  networkPolicy:
+    enabled: false
+  image:
+    registry: registry-1.docker.io
+    repository: bitnami/rabbitmq
+  auth:
+    username: celery_broker_user
+    password: # from_cd
+  extraConfiguration: |
+    default_vhost = /
+    default_permissions.configure = .*
+    default_permissions.read = .*
+    default_permissions.write = .*
+
+celeryFlower:
+  enabled: true
+  rabbitmq:
+    host: # to_set
+  service:
+    loadBalancerIP: # from_cd
+  secrets:
+    CELERY_BROKER_PASSWORD: # from_cd

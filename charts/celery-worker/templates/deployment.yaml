@@ -1,0 +1,123 @@
+{{- range $worker_name, $worker := .Values.workers }}
+{{- if $worker.enabled -}}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $worker_name }}
+  labels:
+    {{- include "celery-worker.labels" $ | nindent 4 }}
+spec:
+  {{- if not $worker.autoscaling.enabled }}
+  replicas: {{ $.Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "celery-worker.selectorLabels" $ | nindent 6 }}
+  template:
+    metadata:
+      {{- with $.Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "celery-worker.selectorLabels" $ | nindent 8 }}
+    spec:
+      {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "celery-worker.serviceAccountName" $ }}
+      securityContext:
+        {{- toYaml $.Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ $.Chart.Name }}
+          securityContext:
+            {{- toYaml $.Values.securityContext | nindent 12 }}
+          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          # command: ["/bin/sh"]
+          # args: ["-c", "poetry run celery -A  workers.celery_app worker --loglevel=info"]
+          {{- if $worker.command }}
+          command:
+            {{ toYaml $worker.command.cmd | nindent 12 }}
+          {{- end }}
+          envFrom:  
+            - configMapRef:
+                name: {{ include "celery-worker.fullname" $ }}-configmap
+            {{- if .Values.secrets.enabled }}
+            {{- range $secretName, $_ := .Values.secrets.data }}
+            - secretRef:
+                name: {{ include "celery-worker.fullname" $ }}-{{ $secretName }}
+            {{- end }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          {{- if eq $worker.type "worker" }}
+          readinessProbe:
+            exec:
+              command: [
+                "bash",
+                "-c",
+                "poetry run worker/scripts/readiness.py"
+              ]
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            timeoutSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command: [
+                "bash",
+                "-c",
+                "poetry run worker/scripts/worker_liveness.py"
+              ]
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            timeoutSeconds: 10
+            failureThreshold: 3
+          {{- else if eq $worker.type "beat" }}
+          readinessProbe:
+            exec:
+              command: [
+                "poetry",
+                "run",
+                "worker/scripts/readiness.py"
+              ]
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            timeoutSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command: [
+                "poetry",
+                "run",
+                "worker/scripts/beat_liveness.py"
+              ]
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            timeoutSeconds: 10
+            failureThreshold: 3
+          {{- end }}
+          resources:
+            {{- toYaml $worker.resources | nindent 12 }}
+      {{- with $worker.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $worker.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+---
+
+{{- end -}}
+{{- end -}}

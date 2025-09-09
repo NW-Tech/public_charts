@@ -2,8 +2,5 @@ dependencies:
 - name: cluster
   repository: https://nw-tech.github.io/public_charts/
   version: 0.3.3
-- name: rabbitmq
-  repository: https://charts.bitnami.com/bitnami
-  version: 15.0.7
-digest: sha256:3960998a860b8aa403e2019117755d2908ff8861388808fd30561e7ff9c8baad
-generated: "2025-06-13T10:10:18.087602+02:00"
+digest: sha256:d12c169841db26564f3b25173f01aa098bfbdb0a5c943b8bfcb6a95d03207fe9
+generated: "2025-09-09T12:58:24.718834+02:00"

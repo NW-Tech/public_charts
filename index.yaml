@@ -203,6 +203,26 @@ entries:
   python-app:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2025-09-09T11:03:29.949414505Z"
+    dependencies:
+    - condition: cluster.enabled
+      name: cluster
+      repository: https://nw-tech.github.io/public_charts/
+      version: 0.3.3
+    - alias: celeryWorker
+      condition: celeryWorker.enabled
+      name: celery-worker
+      repository: https://nw-tech.github.io/public_charts/
+      version: 0.1.0
+    description: A Helm chart for Kubernetes
+    digest: 43583dc917173bb52320e76b6954bd68153b9c1a21c9ce5db4e3b6336b05c2ef
+    name: python-app
+    type: application
+    urls:
+    - python-app-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2025-09-09T10:59:59.028797568Z"
     dependencies:
     - condition: cluster.enabled
@@ -216,4 +236,4 @@ entries:
     urls:
     - python-app-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-09T10:59:59.028829348Z"
+generated: "2025-09-09T11:03:29.949434252Z"

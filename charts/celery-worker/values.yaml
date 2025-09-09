@@ -78,12 +78,6 @@ image:
   pullPolicy: IfNotPresent
   tag: latest
 
-command:
-  cmd:
-    - /bin/sh
-    - -c
-    - poetry run celery -A worker worker --loglevel=info --concurrency=2
-
 imagePullSecrets: []
 
 containerPort: 8000

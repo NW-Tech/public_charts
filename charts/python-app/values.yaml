@@ -12,6 +12,10 @@ cluster:
 
   cluster:
     instances: 2
+    # https://cloudnative-pg.io/documentation/preview/replication/#logical-decoding-slot-synchronization
+    replicationSlots:
+      highAvailability:
+        synchronizeLogicalDecoding: true
     storage:
       size: 15Gi
     walStorage:
@@ -32,6 +36,8 @@ cluster:
         max_wal_size: 2GB
         max_replication_slots: "10"
         max_slot_wal_keep_size: 5GB
+        hot_standby_feedback: "on"
+        sync_replication_slots: "on"
 
     serviceAccountTemplate:
       metadata:

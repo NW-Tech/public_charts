@@ -3,6 +3,16 @@ entries:
   celery-flower:
   - apiVersion: v2
     appVersion: 2.0.1
+    created: "2025-09-09T10:59:58.574465714Z"
+    description: A Helm chart for Kubernetes
+    digest: cf66bb18535e65b643004d166464c3fdfe9063d9db9278b7cfb2f346c7fc9b65
+    name: celery-flower
+    type: application
+    urls:
+    - celery-flower-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: 2.0.1
     created: "2025-07-16T16:05:43.614983667Z"
     description: A Helm chart for Kubernetes
     digest: b98377e234b9c70e8bafcc495ec9813c66585a87db6f7cab9abc23f9c35dd049
@@ -30,6 +40,31 @@ entries:
     type: application
     urls:
     - https://github.com/NW-Tech/public_charts/releases/download/celery-flower-0.1.0/celery-flower-0.1.0.tgz
+    version: 0.1.0
+  celery-worker:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-09-09T10:59:58.833661572Z"
+    dependencies:
+    - condition: rabbitmq.enabled
+      name: rabbitmq
+      repository: https://charts.bitnami.com/bitnami
+      version: 15.0.7
+    - condition: cluster.enabled
+      name: cluster
+      repository: https://nw-tech.github.io/public_charts/
+      version: 0.3.3
+    - alias: celeryFlower
+      condition: celeryFlower.enabled
+      name: celery-flower
+      repository: https://nw-tech.github.io/public_charts/
+      version: 0.1.2
+    description: A Helm chart for Kubernetes
+    digest: 9501f6b38e1523e2a951b26ff148617dc58dbf0f47b6446ae5492ae6a3014153
+    name: celery-worker
+    type: application
+    urls:
+    - celery-worker-0.1.0.tgz
     version: 0.1.0
   cluster:
   - apiVersion: v2
@@ -165,4 +200,20 @@ entries:
     urls:
     - https://github.com/NW-Tech/public_charts/releases/download/nginx-react-0.1.0/nginx-react-0.1.0.tgz
     version: 0.1.0
-generated: "2025-08-29T13:43:04.472083562Z"
+  python-app:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-09-09T10:59:59.028797568Z"
+    dependencies:
+    - condition: cluster.enabled
+      name: cluster
+      repository: https://nw-tech.github.io/public_charts/
+      version: 0.3.3
+    description: A Helm chart for Kubernetes
+    digest: 94095bd93eb56c235b5ce48a46af075c9e60757f6cd6d16b23d852cc03a0fa03
+    name: python-app
+    type: application
+    urls:
+    - python-app-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-09-09T10:59:59.028829348Z"

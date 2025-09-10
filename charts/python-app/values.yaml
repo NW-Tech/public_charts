@@ -201,6 +201,7 @@ celeryWorker:
       CELERY_BROKER_HOST: # to_set
   rabbitmq:
     auth:
+      username: # from_cd
       password: # from_cd
   celeryFlower:
     rabbitmq:

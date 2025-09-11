@@ -4,6 +4,6 @@ dependencies:
   version: 0.3.3
 - name: celery-worker
   repository: https://nw-tech.github.io/public_charts/
-  version: 0.1.0
-digest: sha256:06d8e29f1abbc2d53b0dd43aced337a99bcc941709c7f6dcd112a53e4a7fb15e
-generated: "2025-09-09T13:01:12.461094+02:00"
+  version: 0.1.1
+digest: sha256:8f9f9307fbaf6820ddd2a8a706bcef1ec9b8005dcc3857481c27e2c63537aab9
+generated: "2025-09-11T12:52:58.898226+02:00"

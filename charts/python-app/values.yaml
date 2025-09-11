@@ -73,7 +73,7 @@ cluster:
     provider: google
     google:
       path: # to_set
-      bucket: "market-cluster-cnpg-backup"
+      bucket: # from_cd
       gkeEnvironment: true
 
     scheduledBackups:
@@ -176,38 +176,41 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
-# TODO: Uncomment once chart has been deployed
-# celeryWorker:
-#   enabled: false
-#   cluster:
-#     cluster:
-#       serviceAccountTemplate:
-#         metadata:
-#           annotations:
-#             iam.gke.io/gcp-service-account: # from_cd
-#   postgresRolesSecrets:
-#     data:
-#       pg-celery-credentials:
-#         password: # from_cd
-#   image:
-#     repository: # from_cd
-#   secrets:
-#     data:
-#       celery-credentials:
-#         CELERY_BROKER_PASSWORD: # from_cd
-#         CELERY_BACKEND_PASSWORD: # from_cd
-#   configMap:
-#     data:
-#       # CONSTRAINT: Please note this value must equal {{Chart.name}}-rabbitmq
-#       CELERY_BROKER_HOST: # to_set
-#   rabbitmq:
-#     auth:
-#       password: # from_cd
-#   celeryFlower:
-#     rabbitmq:
-#       # CONSTRAINT: Please note this value must equal {{Chart.name}}-rabbitmq
-#       host: # to_set
-#     service:
-#       loadBalancerIP: # from_cd
-#     secrets:
-#       CELERY_BROKER_PASSWORD: # from_cd
+celeryWorker:
+  enabled: false
+  cluster:
+    cluster:
+      serviceAccountTemplate:
+        metadata:
+          annotations:
+            iam.gke.io/gcp-service-account: # from_cd
+  postgresRolesSecrets:
+    data:
+      pg-celery-credentials:
+        password: # from_cd
+  image:
+    repository: # from_cd
+  secrets:
+    enabled: true
+    data:
+      celery-credentials:
+        CELERY_BROKER_PASSWORD: # from_cd
+        CELERY_BACKEND_PASSWORD: # from_cd
+  configMap:
+    enabled: true
+    data:
+      # CONSTRAINT: Please note this value must equal {{Chart.name}}-rabbitmq
+      CELERY_BROKER_HOST: # to_set
+  rabbitmq:
+    auth:
+      username: # from_cd
+      password: # from_cd
+  celeryFlower:
+    enabled: true
+    rabbitmq:
+      # CONSTRAINT: Please note this value must equal {{Chart.name}}-rabbitmq
+      host: # to_set
+    service:
+      loadBalancerIP: # from_cd
+    secrets:
+      CELERY_BROKER_PASSWORD: # from_cd

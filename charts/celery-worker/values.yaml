@@ -152,7 +152,7 @@ rabbitmq:
     registry: registry-1.docker.io
     repository: bitnami/rabbitmq
   auth:
-    username: celery_broker_user
+    username: # from_cd
     password: # from_cd
   extraConfiguration: |
     default_vhost = /

@@ -45,8 +45,8 @@ spec:
           envFrom:  
             - configMapRef:
                 name: {{ include "celery-worker.fullname" $ }}-configmap
-            {{- if .Values.secrets.enabled }}
-            {{- range $secretName, $_ := .Values.secrets.data }}
+            {{- if $.Values.secrets.enabled }}
+            {{- range $secretName, $_ := $.Values.secrets.data }}
             - secretRef:
                 name: {{ include "celery-worker.fullname" $ }}-{{ $secretName }}
             {{- end }}

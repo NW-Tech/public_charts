@@ -191,11 +191,13 @@ celeryWorker:
   image:
     repository: # from_cd
   secrets:
+    enabled: true
     data:
       celery-credentials:
         CELERY_BROKER_PASSWORD: # from_cd
         CELERY_BACKEND_PASSWORD: # from_cd
   configMap:
+    enabled: true
     data:
       # CONSTRAINT: Please note this value must equal {{Chart.name}}-rabbitmq
       CELERY_BROKER_HOST: # to_set
@@ -204,6 +206,7 @@ celeryWorker:
       username: # from_cd
       password: # from_cd
   celeryFlower:
+    enabled: true
     rabbitmq:
       # CONSTRAINT: Please note this value must equal {{Chart.name}}-rabbitmq
       host: # to_set

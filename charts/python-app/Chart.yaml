@@ -29,7 +29,7 @@ dependencies:
     repository: https://nw-tech.github.io/public_charts/
     condition: cluster.enabled
   - name: celery-worker
-    version: 0.1.4
+    version: 0.1.5
     repository: https://nw-tech.github.io/public_charts/
     condition: celeryWorker.enabled
     alias: celeryWorker

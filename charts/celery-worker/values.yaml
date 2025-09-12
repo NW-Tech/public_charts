@@ -15,6 +15,7 @@ cluster:
     storage:
       size: 15Gi
     walStorage:
+      enabled: true
       size: 10Gi
     monitoring:
       enabled: true

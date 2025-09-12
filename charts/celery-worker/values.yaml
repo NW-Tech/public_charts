@@ -149,6 +149,8 @@ rabbitmq:
   enabled: true
   networkPolicy:
     enabled: false
+  rbac:
+    create: false
   image:
     registry: registry-1.docker.io
     repository: bitnami/rabbitmq
@@ -160,6 +162,13 @@ rabbitmq:
     default_permissions.configure = .*
     default_permissions.read = .*
     default_permissions.write = .*
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 180
+    timeoutSeconds: 30
+    periodSeconds: 60
+    failureThreshold: 6
+    successThreshold: 1
 
 celeryFlower:
   enabled: true

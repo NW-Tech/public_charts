@@ -41,7 +41,7 @@ spec:
             {{- if .Values.secrets.enabled }}
             {{- range $secretName, $_ := .Values.secrets.data }}
             - secretRef:
-                name: {{ include "app.name" $ }}-{{ $secretName }}
+                name: {{ include "app.fullname" $ }}-{{ $secretName }}
             {{- end }}
             {{- end }}
           {{- with .Values.ports }}

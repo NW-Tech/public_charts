@@ -179,6 +179,8 @@ tolerations: []
 affinity: {}
 celeryWorker:
   enabled: false
+  workers:
+    basePath: # to_set
   cluster:
     cluster:
       serviceAccountTemplate:

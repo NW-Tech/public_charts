@@ -1,4 +1,4 @@
-{{- range $worker_name, $worker := .Values.workers }}
+{{- range $worker_name, $worker := .Values.workers.workers }}
 {{- if $worker.enabled -}}
 
 apiVersion: apps/v1
@@ -8,7 +8,7 @@ metadata:
   labels:
     {{- include "celery-worker.labels" $ | nindent 4 }}
 spec:
-  {{- if not $worker.autoscaling.enabled }}
+  {{- if not $.Values.workers.autoscaling.enabled }}
   replicas: {{ $.Values.replicaCount }}
   {{- end }}
   selector:
@@ -36,17 +36,15 @@ spec:
             {{- toYaml $.Values.securityContext | nindent 12 }}
           image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
-          # command: ["/bin/sh"]
-          # args: ["-c", "poetry run celery -A  workers.celery_app worker --loglevel=info"]
-          {{- if $worker.command }}
           command:
-            {{ toYaml $worker.command.cmd | nindent 12 }}
-          {{- end }}
+            - /bin/sh
+            - -c
+            - {{ include "celery-worker.command" (dict "worker" $worker "Values" $.Values) }}
           envFrom:  
             - configMapRef:
                 name: {{ include "celery-worker.fullname" $ }}-configmap
             - secretRef:
-                name: {{ include "app.fullname" . }}-celery-urls
+                name: {{ include "celery-worker.fullname" $ }}-celery-urls
             {{- if $.Values.secrets.enabled }}
             {{- range $secretName, $_ := $.Values.secrets.data }}
             - secretRef:

@@ -60,3 +60,19 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create the command array for the worker with proper base path substitution
+*/}}
+{{- define "celery-worker.command" -}}
+{{- if .worker }}
+{{- $basePath := .Values.workers.basePath | default "worker.celery_app" }}
+{{- if eq .worker.type "worker" -}}
+poetry run celery -A {{ $basePath }} worker --loglevel=info --concurrency=1
+{{- else if eq .worker.type "beat" -}}
+poetry run celery -A {{ $basePath }} beat -S celery_sqlalchemy_scheduler.schedulers:DatabaseScheduler -l info -s /tmp/celerybeat-schedule --pidfile=/tmp/celery-beat.pid
+{{- else if .worker.cmd -}}
+{{ .worker.cmd }}
+{{- end }}
+{{- end }}
+{{- end -}}

@@ -120,30 +120,19 @@ nodeSelector: {}
 tolerations: []
 
 workers:
-  celery-app-worker:
-    enabled: true
-    type: worker
-    queues:
-      - celery
-    command:
-      cmd:
-        - /bin/sh
-        - -c
-        - poetry run celery -A worker.celery_app worker --loglevel=info --concurrency=1
-    autoscaling:
-      enabled: false
+  basePath: # to_set
+  autoscaling:
+    enabled: false
+  workers:
+    celery-app-worker:
+      enabled: true
+      type: worker
+      queues:
+        - celery
 
-  celery-app-scheduler:
-    enabled: true
-    type: beat
-    command:
-      cmd:
-        - /bin/sh
-        - -c
-        - poetry run celery -A worker.celery_app beat -S celery_sqlalchemy_scheduler.schedulers:DatabaseScheduler -l info -s /tmp/celerybeat-schedule --pidfile=/tmp/celery-beat.pid
-
-    autoscaling:
-      enabled: false
+    celery-app-scheduler:
+      enabled: true
+      type: beat
 
 rabbitmq:
   enabled: true

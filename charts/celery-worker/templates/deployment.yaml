@@ -45,6 +45,8 @@ spec:
           envFrom:  
             - configMapRef:
                 name: {{ include "celery-worker.fullname" $ }}-configmap
+            - secretRef:
+                name: {{ include "app.fullname" . }}-celery-urls
             {{- if $.Values.secrets.enabled }}
             {{- range $secretName, $_ := $.Values.secrets.data }}
             - secretRef:

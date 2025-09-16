@@ -66,11 +66,12 @@ Create the command array for the worker with proper base path substitution
 */}}
 {{- define "celery-worker.command" -}}
 {{- if .worker }}
-{{- $basePath := .Values.workers.basePath | default "worker.celery_app" }}
+{{- $basePath := .Values.workers.basePath | default "worker" }}
+{{- $baseCeleryAppPath := printf "%s.celery_app" $basePath }}
 {{- if eq .worker.type "worker" -}}
-poetry run celery -A {{ $basePath }} worker --loglevel=info --concurrency=1
+poetry run celery -A {{ $baseCeleryAppPath }} worker --loglevel=info --concurrency=1
 {{- else if eq .worker.type "beat" -}}
-poetry run celery -A {{ $basePath }} beat -S celery_sqlalchemy_scheduler.schedulers:DatabaseScheduler -l info -s /tmp/celerybeat-schedule --pidfile=/tmp/celery-beat.pid
+poetry run celery -A {{ $baseCeleryAppPath }} beat -S celery_sqlalchemy_scheduler.schedulers:DatabaseScheduler -l info -s /tmp/celerybeat-schedule --pidfile=/tmp/celery-beat.pid
 {{- else if .worker.cmd -}}
 {{ .worker.cmd }}
 {{- end }}
@@ -82,8 +83,8 @@ Convert a module path (with dots) to a filesystem path (with slashes)
 Example: "worker.celery_app" -> "worker/scripts/readiness.py"
 */}}
 {{- define "celery-worker.scriptPath" -}}
-{{- $basePath := .basePath | default "worker.celery_app" }}
-{{- $baseDir := regexReplaceAll "\\." $basePath "/" | trimSuffix "/celery_app" }}
+{{- $basePath := .basePath | default "worker" }}
+{{- $baseDir := regexReplaceAll "\\." $basePath "/" }}
 {{- printf "%s/scripts/%s" $baseDir .scriptName }}
 {{- end -}}
 

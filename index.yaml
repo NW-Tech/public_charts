@@ -44,6 +44,30 @@ entries:
   celery-worker:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2025-09-16T13:19:18.209363536Z"
+    dependencies:
+    - condition: rabbitmq.enabled
+      name: rabbitmq
+      repository: https://charts.bitnami.com/bitnami
+      version: 15.0.7
+    - condition: cluster.enabled
+      name: cluster
+      repository: https://nw-tech.github.io/public_charts/
+      version: 0.3.3
+    - alias: celeryFlower
+      condition: celeryFlower.enabled
+      name: celery-flower
+      repository: https://nw-tech.github.io/public_charts/
+      version: 0.1.3
+    description: A Helm chart for Kubernetes
+    digest: 5ad0d40d6c9873bad8b1b1a707472e984ffbaca6b1cf4f064cb5dd52261d9054
+    name: celery-worker
+    type: application
+    urls:
+    - celery-worker-0.1.9.tgz
+    version: 0.1.9
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2025-09-15T15:59:10.918476106Z"
     dependencies:
     - condition: rabbitmq.enabled
@@ -648,4 +672,4 @@ entries:
     urls:
     - python-app-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-16T10:10:52.469185638Z"
+generated: "2025-09-16T13:19:18.209452724Z"

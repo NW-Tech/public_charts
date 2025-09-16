@@ -1,9 +1,9 @@
 dependencies:
 - name: cluster
   repository: https://nw-tech.github.io/public_charts/
-  version: 0.3.3
+  version: 0.3.4
 - name: celery-worker
   repository: https://nw-tech.github.io/public_charts/
-  version: 0.1.8
-digest: sha256:49152f3ae074e8d2d047b60e7382315ba35e19caa825790edbed7168b70923e3
-generated: "2025-09-15T18:01:27.530166+02:00"
+  version: 0.1.9
+digest: sha256:34e2d6e55fbd8e8e5c66a72fbc276f03c49b12e8b49ae554264b3934394d22cd
+generated: "2025-09-16T15:23:37.35056+02:00"

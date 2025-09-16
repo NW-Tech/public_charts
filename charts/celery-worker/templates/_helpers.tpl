@@ -76,3 +76,40 @@ poetry run celery -A {{ $basePath }} beat -S celery_sqlalchemy_scheduler.schedul
 {{- end }}
 {{- end }}
 {{- end -}}
+
+{{/*
+Convert a module path (with dots) to a filesystem path (with slashes)
+Example: "worker.celery_app" -> "worker/scripts/readiness.py"
+*/}}
+{{- define "celery-worker.scriptPath" -}}
+{{- $basePath := .basePath | default "worker.celery_app" }}
+{{- $baseDir := regexReplaceAll "\\." $basePath "/" | trimSuffix "/celery_app" }}
+{{- printf "%s/scripts/%s" $baseDir .scriptName }}
+{{- end -}}
+
+
+{{/*
+Generate complete probe configuration based on worker type and probe type
+*/}}
+{{- define "celery-worker.probe" -}}
+{{- $workerType := .workerType }}
+{{- $probeType := .probeType | default "readiness" }}
+{{- $basePath := .Values.workers.basePath }}
+{{- $scriptName := "readiness.py" }}
+{{- if eq $probeType "liveness" }}
+  {{- if eq $workerType "worker" }}
+    {{- $scriptName = "worker_liveness.py" }}
+  {{- else if eq $workerType "beat" }}
+    {{- $scriptName = "beat_liveness.py" }}
+  {{- end }}
+{{- end }}
+exec:
+  command:
+    - bash
+    - -c
+    - poetry run {{ include "celery-worker.scriptPath" (dict "basePath" $basePath "scriptName" $scriptName) }}
+initialDelaySeconds: 30
+periodSeconds: 60
+timeoutSeconds: 10
+failureThreshold: 3
+{{- end -}}

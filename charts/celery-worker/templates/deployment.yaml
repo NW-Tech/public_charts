@@ -55,52 +55,9 @@ spec:
             - name: http
               containerPort: 80
               protocol: TCP
-          {{- if eq $worker.type "worker" }}
-          readinessProbe:
-            exec:
-              command: [
-                "bash",
-                "-c",
-                "poetry run worker/scripts/readiness.py"
-              ]
-            initialDelaySeconds: 30
-            periodSeconds: 60
-            timeoutSeconds: 10
-            failureThreshold: 3
-          livenessProbe:
-            exec:
-              command: [
-                "bash",
-                "-c",
-                "poetry run worker/scripts/worker_liveness.py"
-              ]
-            initialDelaySeconds: 30
-            periodSeconds: 60
-            timeoutSeconds: 10
-            failureThreshold: 3
-          {{- else if eq $worker.type "beat" }}
-          readinessProbe:
-            exec:
-              command: [
-                "poetry",
-                "run",
-                "worker/scripts/readiness.py"
-              ]
-            initialDelaySeconds: 30
-            periodSeconds: 60
-            timeoutSeconds: 10
-            failureThreshold: 3
-          livenessProbe:
-            exec:
-              command: [
-                "poetry",
-                "run",
-                "worker/scripts/beat_liveness.py"
-              ]
-            initialDelaySeconds: 30
-            periodSeconds: 60
-            timeoutSeconds: 10
-            failureThreshold: 3
+          {{- range $probeType := (list "readiness" "liveness") }}
+          {{ $probeType }}Probe:
+            {{- include "celery-worker.probe" (dict "workerType" $worker.type "probeType" $probeType "Values" $.Values) | nindent 12 }}
           {{- end }}
           resources:
             {{- toYaml $worker.resources | nindent 12 }}

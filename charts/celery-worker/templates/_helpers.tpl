@@ -106,9 +106,9 @@ Generate complete probe configuration based on worker type and probe type
 {{- end }}
 exec:
   command:
-    - bash
-    - -c
-    - poetry run {{ include "celery-worker.scriptPath" (dict "basePath" $basePath "scriptName" $scriptName) }}
+    - poetry
+    - run
+    - {{ include "celery-worker.scriptPath" (dict "basePath" $basePath "scriptName" $scriptName) }}
 initialDelaySeconds: 30
 periodSeconds: 60
 timeoutSeconds: 10

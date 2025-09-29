@@ -4,7 +4,7 @@
 
 cluster:
   enabled: true
-  nameOverride: celery-backend
+  nameOverride: celery-backend-cluster
 
   version:
     postgresql: "17"

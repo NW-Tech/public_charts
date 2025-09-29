@@ -182,6 +182,7 @@ celeryWorker:
   workers:
     basePath: # to_set
   cluster:
+    enabled: true
     cluster:
       serviceAccountTemplate:
         metadata:

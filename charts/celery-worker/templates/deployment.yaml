@@ -4,7 +4,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ $worker_name }}
+  name: {{ include "celery-worker.fullname" $ }}-{{ $worker_name }}
   labels:
     {{- include "celery-worker.labels" $ | nindent 4 }}
 spec:

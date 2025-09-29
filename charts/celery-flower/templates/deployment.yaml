@@ -33,7 +33,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
             - secretRef:
-                name: {{ include "celery-flower.name" $ }}-flower-credentials
+                name: {{ include "celery-flower.fullname" $ }}-flower-credentials
           {{- with .Values.ports }}
           ports:
             {{- toYaml . | nindent 12 }}

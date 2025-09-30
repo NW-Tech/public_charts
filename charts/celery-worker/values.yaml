@@ -143,8 +143,9 @@ rabbitmq:
     create: false
   image:
     registry: registry-1.docker.io
-    repository: rabbitmq
-    tag: 4.0.4
+    # TODO: This image is not maintained anymore by bitnami. We should consider switching to another one.
+    repository: bitnamilegacy/rabbitmq
+    tag: 4.0.4-debian-12-r0
   auth:
     username: # from_cd
     password: # from_cd

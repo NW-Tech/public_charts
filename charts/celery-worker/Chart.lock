@@ -7,6 +7,6 @@ dependencies:
   version: 0.3.3
 - name: celery-flower
   repository: https://nw-tech.github.io/public_charts/
-  version: 0.1.4
-digest: sha256:1bb64b5275346165bf2add695069258922dd06a398ce16de2dda89f0f0f83284
-generated: "2025-09-29T14:52:21.771718+02:00"
+  version: 0.1.5
+digest: sha256:827ef4795bd437b31e0c9f9efa9a78d453f5ad1e420b59b7e5a60e745a62f901
+generated: "2025-10-01T19:55:31.985549+02:00"

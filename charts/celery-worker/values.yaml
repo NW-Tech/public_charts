@@ -103,9 +103,9 @@ configMap:
   enabled: true
   data:
     CELERY_BROKER_USER: celery_broker_user
-    CELERY_BROKER_HOST: # to_set
     CELERY_BACKEND_USER: celery_backend_user
     CELERY_BACKEND_DB: celery_backend_db
+    CELERY_BROKER_HOST: # to_set
     CELERY_DB_HOST: # to_set
 
 podAnnotations: {}
@@ -147,7 +147,8 @@ rabbitmq:
     repository: bitnamilegacy/rabbitmq
     tag: 4.0.4-debian-12-r0
   auth:
-    username: # from_cd
+    # CONSTRAINT: This must equal CELERY_BROKER_USER in configMap
+    username: celery_broker_user
     password: # from_cd
   extraConfiguration: |
     default_vhost = /

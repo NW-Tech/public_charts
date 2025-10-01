@@ -78,7 +78,7 @@ serviceAccount:
 image:
   repository: # from_cd
   pullPolicy: IfNotPresent
-  tag: latest
+  tag: # from_cd
 
 imagePullSecrets: []
 

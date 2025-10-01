@@ -105,7 +105,7 @@ serviceAccount:
 image:
   repository: # from_cd
   pullPolicy: IfNotPresent
-  tag: latest
+  tag: # from_cd
 
 imagePullSecrets: []
 
@@ -195,6 +195,7 @@ celeryWorker:
         password: # from_cd
   image:
     repository: # from_cd
+    tag: # from_cd
   secrets:
     enabled: true
     data:

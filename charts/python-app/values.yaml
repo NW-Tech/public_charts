@@ -15,7 +15,9 @@ cluster:
     # https://cloudnative-pg.io/documentation/preview/replication/#logical-decoding-slot-synchronization
     replicationSlots:
       highAvailability:
+        enabled: true
         synchronizeLogicalDecoding: true
+        slotPrefix: "warehouse_replication_"
     storage:
       size: 15Gi
     walStorage:

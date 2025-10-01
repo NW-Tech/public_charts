@@ -17,7 +17,7 @@ cluster:
       highAvailability:
         enabled: true
         synchronizeLogicalDecoding: true
-        slotPrefix: "warehouse_replication_"
+        slotPrefix: "_"
     storage:
       size: 15Gi
     walStorage:

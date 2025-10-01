@@ -3,6 +3,16 @@ entries:
   celery-flower:
   - apiVersion: v2
     appVersion: 2.0.1
+    created: "2025-10-01T17:54:35.035609422Z"
+    description: A Helm chart for Kubernetes
+    digest: 1db4f890ad5b43aa951b4feaf74bd7e6756c7654083569d5bc998652fbcf92d4
+    name: celery-flower
+    type: application
+    urls:
+    - celery-flower-0.1.5.tgz
+    version: 0.1.5
+  - apiVersion: v2
+    appVersion: 2.0.1
     created: "2025-09-29T12:51:07.155694669Z"
     description: A Helm chart for Kubernetes
     digest: 2743f4b0c64e009fca15efa0d7cd3df5bd12063693c3f460aa90f11e66d23d44
@@ -1138,4 +1148,4 @@ entries:
     urls:
     - python-app-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-01T16:18:56.124161812Z"
+generated: "2025-10-01T17:54:35.035772547Z"

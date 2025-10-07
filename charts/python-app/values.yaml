@@ -19,7 +19,7 @@ cluster:
         synchronizeLogicalDecoding: true
         slotPrefix: "_"
     storage:
-      size: 15Gi
+      size: 75Gi
     walStorage:
       enabled: true
       size: 10Gi

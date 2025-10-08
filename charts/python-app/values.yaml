@@ -97,6 +97,7 @@ postgresRolesSecrets:
       username: open_metadata
       password: # from_cd
     current-prod-pg-password:
+      username: # to_set
       password: #from_cd
 
 replicaCount: 1

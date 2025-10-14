@@ -55,6 +55,20 @@ cluster:
         passwordSecret:
           name: pg-celery-credentials
 
+  backups:
+    enabled: true
+    secret:
+      create: false
+    provider: google
+    google:
+      path: # to_set
+      bucket: # from_cd
+      gkeEnvironment: true
+
+    scheduledBackups:
+      - name: daily-backup
+        schedule: "0 0 0 * * *" # Daily at midnight
+
   poolers:
     - name: "rw-pooler"
       type: rw

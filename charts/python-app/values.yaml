@@ -192,6 +192,10 @@ celeryWorker:
         metadata:
           annotations:
             iam.gke.io/gcp-service-account: # from_cd
+    backups:
+      google:
+        path: # to_set
+        bucket: # from_cd
   postgresRolesSecrets:
     data:
       pg-celery-credentials:

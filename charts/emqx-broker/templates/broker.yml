@@ -1,0 +1,44 @@
+apiVersion: apps.emqx.io/v2beta1
+kind: EMQX
+metadata:
+  name: emqx
+spec:
+  image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+  coreTemplate:
+    spec:
+      replicas: {{ .Values.replicaCount }}
+      {{- if .Values.persistence.enabled }}
+      {{- with .Values.persistence }}
+      volumeClaimTemplates:
+      ## more information about storage classes: https://cloud.google.com/kubernetes-engine/docs/concepts/persistent-volumes#storageclasses
+        storageClassName: {{ .storageClass }}
+        resources:
+          requests:
+            storage: {{ .size }}
+        accessModes:
+          {{- toYaml .accessModes | nindent 10 }}
+      {{- end }}
+      {{- end }}
+
+  {{- with .Values.dashboardServiceTemplate }}
+  dashboardServiceTemplate:
+    spec:
+      ## more information about load balancer: https://cloud.google.com/kubernetes-engine/docs/how-to/internal-load-balancing
+      {{- toYaml .spec | nindent 6 }}
+    metadata:
+      {{- toYaml .metadata | nindent 6 }}
+  {{- end }}
+    
+      ## more information about load balancer: https://cloud.google.com/kubernetes-engine/docs/how-to/internal-load-balancing
+  {{- with .Values.listenersServiceTemplate }}
+  listenersServiceTemplate:
+    spec:
+      ## more information about load balancer: https://cloud.google.com/kubernetes-engine/docs/how-to/internal-load-balancing
+      {{- toYaml .spec | nindent 6 }}
+    metadata:
+      {{- toYaml .metadata | nindent 6 }}
+  {{- end }}
+  {{- with .Values.config }}
+  config: 
+    {{- toYaml . | nindent 4 }}
+  {{- end }}

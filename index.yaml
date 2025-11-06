@@ -698,6 +698,17 @@ entries:
     urls:
     - https://github.com/NW-Tech/public_charts/releases/download/cluster-issuer-0.1.0/cluster-issuer-0.1.0.tgz
     version: 0.1.0
+  emqx-broker:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2025-11-06T16:00:03.715496623Z"
+    description: A Helm chart for Kubernetes
+    digest: 905661870085dbba669567ceff17d3315beb599a1a6c8b9c99f15f9e2517f73f
+    name: emqx-broker
+    type: application
+    urls:
+    - emqx-broker-0.1.0.tgz
+    version: 0.1.0
   ip-masq-agent:
   - apiVersion: v2
     appVersion: 2.12.0
@@ -1296,4 +1307,4 @@ entries:
     urls:
     - python-app-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-16T15:41:23.887410571Z"
+generated: "2025-11-06T16:00:03.715641718Z"

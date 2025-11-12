@@ -1,7 +1,7 @@
 apiVersion: apps.emqx.io/v2beta1
 kind: EMQX
 metadata:
-  name: emqx
+  name: {{ include "emqx-broker.fullname" . }}
 spec:
   image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
   coreTemplate:

@@ -10,6 +10,9 @@ cluster:
 
   type: postgresql
 
+  publication:
+    enabled: false
+
   cluster:
     instances: 2
     # https://cloudnative-pg.io/documentation/preview/replication/#logical-decoding-slot-synchronization

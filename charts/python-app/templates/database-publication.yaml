@@ -1,0 +1,18 @@
+{{- if .Values.cluster.publication.enabled }}
+apiVersion: postgresql.cnpg.io/v1
+kind: Publication
+metadata:
+  name: {{ include "app.fullname" . }}-publication
+spec:
+  cluster:
+    name: {{ include "app.fullname" . }}-cluster
+  dbname: {{ .Values.cluster.cluster.initdb.database }}
+  name: {{ include "app.fullname" . }}-publication
+  target:
+    objects:
+      {{- range .Values.cluster.publication.tables }}
+      - table:
+          name: {{ . }}
+          schema: public
+      {{- end }}
+{{- end }}

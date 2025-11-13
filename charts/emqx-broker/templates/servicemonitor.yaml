@@ -1,0 +1,142 @@
+{{- if .Values.monitoring.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "emqx-broker.fullname" . }}-exporter
+  labels:
+    app: {{ include "emqx-broker.fullname" . }}-exporter
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "emqx-broker.fullname" . }}-exporter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ include "emqx-broker.fullname" . }}-exporter
+    spec:
+      securityContext:
+        runAsUser: 1000
+      containers:
+        - name: exporter
+          image: emqx/emqx-exporter:0.2
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+          ports:
+            - containerPort: 8085
+              name: metrics
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 100m
+              memory: 20Mi
+          args:
+            - --config.file
+            - /etc/emqx-exporter/config.yaml
+            - --log.level=debug
+          volumeMounts:
+            - name: config
+              mountPath: /etc/emqx-exporter
+      volumes:
+        - name: config
+          secret:
+            secretName: {{ include "emqx-broker.fullname" . }}-exporter-secret
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: {{ include "emqx-broker.fullname" . }}-exporter-secret
+  labels:
+    app: {{ include "emqx-broker.fullname" . }}-exporter
+stringData:
+  config.yaml: |
+    metrics:
+      target: {{ include "emqx-broker.fullname" . }}-dashboard:18083
+      api_key: {{ .Values.monitoring.dashboardApiKey }}
+      api_secret: {{ .Values.monitoring.dashboardApiSecret }}
+    probes:
+      - target: {{ include "emqx-broker.fullname" . }}-listeners:1883
+        client_id: "emqx_exporter_probe_client"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ include "emqx-broker.fullname" . }}-exporter
+  name: {{ include "emqx-broker.fullname" . }}-exporter-service
+spec:
+  ports:
+    - name: metrics
+      port: 8085
+      targetPort: metrics
+  selector:
+    app: {{ include "emqx-broker.fullname" . }}-exporter
+---    
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "emqx-broker.fullname" . }}
+  labels:
+    app: {{ include "emqx-broker.fullname" . }}
+spec:
+  selector:
+    matchLabels:
+      # the label is the same as the label of emqx exporter svc
+      app: {{ include "emqx-broker.fullname" . }}-exporter
+  endpoints:
+    - port: metrics
+      interval: 5s
+      path: /metrics
+      relabelings:
+        - action: replace
+          # user-defined cluster name, requires unique
+          replacement: {{ include "emqx-broker.fullname" . }}
+          targetLabel: cluster
+        - action: replace
+          # fix value, don't modify
+          replacement: exporter
+          targetLabel: from
+        - action: replace
+          # fix value, don't modify
+          sourceLabels: ['pod']
+          regex: '(.*)-.*-.*'
+          replacement: $1
+          targetLabel: "instance"
+        - action: labeldrop
+          # fix value, don't modify
+          regex: 'pod'
+    - port: metrics
+      interval: 5s
+      path: /probe
+      params:
+        target:
+          - "{{ include "emqx-broker.fullname" . }}-listeners:1883"
+      relabelings:
+        - action: replace
+          # user-defined cluster name, requires unique
+          replacement: {{ include "emqx-broker.fullname" . }}
+          targetLabel: cluster
+        - action: replace
+          # fix value, don't modify
+          replacement: exporter
+          targetLabel: from
+        - action: replace
+          # fix value, don't modify
+          sourceLabels: ['pod']
+          regex: '(.*)-.*-.*'
+          replacement: $1
+          targetLabel: "instance"
+        - action: labeldrop
+          # fix value, don't modify
+          regex: 'pod'
+  namespaceSelector:
+    matchNames:
+      # modify the namespace if your exporter deployed in other namespace
+      #- default
+{{- end }}

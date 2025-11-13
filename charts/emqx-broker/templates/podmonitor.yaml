@@ -1,0 +1,36 @@
+{{- if .Values.monitoring.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ include "emqx-broker.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "emqx-broker.fullname" . }}
+spec: 
+  podMetricsEndpoints:
+    - interval: 5s
+      path: /api/v5/prometheus/stats
+      # the name of emqx dashboard containerPort
+      port: dashboard
+      relabelings:
+        - action: replace
+          # user-defined cluster name, requires unique
+          replacement: {{ include "emqx-broker.fullname" . }}
+          targetLabel: cluster
+        - action: replace
+          # fix value, don't modify
+          replacement: emqx
+          targetLabel: from
+        - action: replace
+          # fix value, don't modify
+          sourceLabels: ['pod']
+          targetLabel: "instance"
+  selector:
+    matchLabels:
+      # the label is the same as the label of emqx pod
+      apps.emqx.io/instance: {{ include "emqx-broker.fullname" . }}
+      apps.emqx.io/managed-by: emqx-operator
+  namespaceSelector:
+    matchNames:
+      # modify the namespace if your EMQX cluster deployed in other namespace
+      #- default
+{{- end }}

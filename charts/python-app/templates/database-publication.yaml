@@ -9,10 +9,14 @@ spec:
   dbname: {{ .Values.cluster.cluster.initdb.database }}
   name: {{ include "app.fullname" . }}-publication
   target:
+    {{- if and .Values.cluster.publication.allTables (eq .Values.cluster.publication.allTables true) }}
+    allTables: true
+    {{- else if .Values.cluster.publication.tables }}
     objects:
       {{- range .Values.cluster.publication.tables }}
       - table:
           name: {{ . }}
           schema: public
       {{- end }}
+    {{- end }}
 {{- end }}

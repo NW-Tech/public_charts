@@ -7,6 +7,10 @@ spec:
   coreTemplate:
     spec:
       replicas: {{ .Values.replicaCount }}
+      {{- with .Values.resources }}
+      resources:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}  
       {{- if .Values.persistence.enabled }}
       {{- with .Values.persistence }}
       volumeClaimTemplates:
@@ -15,6 +19,7 @@ spec:
         resources:
           requests:
             storage: {{ .size }}
+            
         accessModes:
           {{- toYaml .accessModes | nindent 10 }}
       {{- end }}

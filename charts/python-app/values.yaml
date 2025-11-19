@@ -99,9 +99,10 @@ postgresRolesSecrets:
     pg-omd-credentials:
       username: open_metadata
       password: # from_cd
-    current-prod-pg-password:
-      username: # to_set
-      password: #from_cd
+    # Note: Please note this secret is not setup by default. You should use it if recovery from existing db is needed
+    # current-prod-pg-password:
+    #   username: # to_set
+    #   password: #from_cd
 
 replicaCount: 1
 

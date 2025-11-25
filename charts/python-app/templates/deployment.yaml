@@ -32,8 +32,12 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          command: {{ .Values.deployment.command }}
-          args: {{ .Values.deployment.args }}
+          {{- if .Values.deployment.command }}
+          command: {{ toYaml .Values.deployment.command | nindent 12 }}
+          {{- end }}
+          {{- if .Values.deployment.args }}
+          args: {{ toYaml .Values.deployment.args | nindent 12 }}
+          {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
             - configMapRef:

@@ -180,6 +180,22 @@ resources:
     cpu: 400m
     memory: 1Gi
 
+livenessProbe:
+  path: /docs
+  port: http
+  timeoutSeconds: 20
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  failureThreshold: 5
+
+readinessProbe:
+  path: /docs
+  port: http
+  timeoutSeconds: 20
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  failureThreshold: 5
+
 autoscaling:
   enabled: false
   minReplicas: 1

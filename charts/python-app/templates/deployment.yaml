@@ -57,21 +57,9 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           livenessProbe:
-            timeoutSeconds: 20
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            failureThreshold: 5
-            httpGet:
-              path: /docs
-              port: http
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
-            timeoutSeconds: 20
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            failureThreshold: 5
-            httpGet:
-              path: /docs
-              port: http
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

@@ -16,6 +16,7 @@ cluster:
   cluster:
     instances: 2
     # https://cloudnative-pg.io/documentation/preview/replication/#logical-decoding-slot-synchronization
+    imageName: "ghcr.io/cloudnative-pg/postgresql:17-system-trixie"
     replicationSlots:
       highAvailability:
         enabled: true
@@ -181,16 +182,18 @@ resources:
     memory: 1Gi
 
 livenessProbe:
-  path: /docs
-  port: http
+  httpGet:
+    path: /docs
+    port: http
   timeoutSeconds: 20
   initialDelaySeconds: 10
   periodSeconds: 10
   failureThreshold: 5
 
 readinessProbe:
-  path: /docs
-  port: http
+  httpGet:
+    path: /docs
+    port: http
   timeoutSeconds: 20
   initialDelaySeconds: 10
   periodSeconds: 10

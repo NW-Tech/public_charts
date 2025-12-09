@@ -13,6 +13,8 @@ cluster:
 
   cluster:
     instances: 2
+    # https://cloudnative-pg.io/documentation/preview/replication/#logical-decoding-slot-synchronization
+    imageName: "ghcr.io/cloudnative-pg/postgresql:17-system-trixie"
     storage:
       size: 15Gi
     walStorage:

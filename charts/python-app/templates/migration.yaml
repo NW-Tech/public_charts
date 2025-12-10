@@ -1,0 +1,76 @@
+{{- if .Values.migrations.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "app.fullname" . }}-migrations
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: migrations
+  annotations:
+    "helm.sh/hook": post-install,pre-upgrade
+    "helm.sh/hook-weight": {{ .Values.migrations.hookWeight | quote }}
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+    "helm.sh/hook-timeout": {{ .Values.migrations.hookTimeout | quote }}
+spec:
+  backoffLimit: {{ .Values.migrations.backoffLimit }}
+  ttlSecondsAfterFinished: {{ .Values.migrations.ttlSecondsAfterFinished }}
+  template:
+    metadata:
+      name: {{ include "app.fullname" . }}-migrations
+      labels:
+        {{- include "app.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: migrations
+    spec:
+      restartPolicy: {{ .Values.migrations.restartPolicy }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: wait-for-db
+          image: {{ .Values.migrations.waitForDatabase.image }}
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for database..."
+              until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER"; do
+                sleep 2
+              done
+              echo "Database ready"
+          envFrom:
+            - configMapRef:
+                name: {{ include "app.fullname" . }}-configmap
+            - secretRef:
+                name: {{ include "app.fullname" $ }}-postgres-credentials
+          resources:
+            {{- toYaml .Values.migrations.waitForDatabase.resources | nindent 12 }}
+      containers:
+        - name: alembic-migrations
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["alembic", "upgrade", "head"]
+          env:
+            # Force Python to be unbuffered for immediate log output
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          envFrom:
+            - configMapRef:
+                name: {{ include "app.fullname" . }}-configmap
+            - secretRef:
+                name: {{ include "app.fullname" $ }}-postgres-credentials
+          resources:
+            {{- toYaml .Values.migrations.resources | nindent 12 }}
+      {{- with .Values.migrations.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.migrations.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.migrations.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

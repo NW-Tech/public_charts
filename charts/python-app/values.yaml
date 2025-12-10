@@ -148,7 +148,7 @@ migrations:
   backoffLimit: 3
   ttlSecondsAfterFinished: 100
   waitForDatabase:
-    image: "postgres:17"
+    image: "ghcr.io/cloudnative-pg/postgresql:17-system-trixie"
     resources:
       limits:
         cpu: 100m

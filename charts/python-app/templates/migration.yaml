@@ -7,10 +7,10 @@ metadata:
     {{- include "app.labels" . | nindent 4 }}
     app.kubernetes.io/component: migrations
   annotations:
-    "helm.sh/hook": pre-install,pre-upgrade
-    "helm.sh/hook-weight": {{ .Values.migrations.hookWeight }}
+    "helm.sh/hook": post-install,pre-upgrade
+    "helm.sh/hook-weight": {{ .Values.migrations.hookWeight | quote }}
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
-    "helm.sh/hook-timeout": {{ .Values.migrations.hookTimeout }}
+    "helm.sh/hook-timeout": {{ .Values.migrations.hookTimeout | quote }}
 spec:
   backoffLimit: {{ .Values.migrations.backoffLimit }}
   ttlSecondsAfterFinished: {{ .Values.migrations.ttlSecondsAfterFinished }}
@@ -33,17 +33,11 @@ spec:
             - sh
             - -c
             - |
-              echo "Waiting for database to be ready..."
-              echo "Database host: $DB_HOST"
-              echo "Database port: $DB_PORT"
-              echo "Database user: $DB_USER"
-              
-              ELAPSED=0
+              echo "Waiting for database..."
               until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER"; do
-                echo "Database is unavailable - sleeping 2s"
                 sleep 2
               done
-              echo "Database is ready!"
+              echo "Database ready"
           envFrom:
             - configMapRef:
                 name: {{ include "app.fullname" . }}-configmap
@@ -56,6 +50,10 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["alembic", "upgrade", "head"]
+          env:
+            # Force Python to be unbuffered for immediate log output
+            - name: PYTHONUNBUFFERED
+              value: "1"
           envFrom:
             - configMapRef:
                 name: {{ include "app.fullname" . }}-configmap

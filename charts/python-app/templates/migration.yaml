@@ -1,0 +1,78 @@
+{{- if .Values.migrations.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "app.fullname" . }}-migrations
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: migrations
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": {{ .Values.migrations.hookWeight }}
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+    "helm.sh/hook-timeout": {{ .Values.migrations.hookTimeout }}
+spec:
+  backoffLimit: {{ .Values.migrations.backoffLimit }}
+  ttlSecondsAfterFinished: {{ .Values.migrations.ttlSecondsAfterFinished }}
+  template:
+    metadata:
+      name: {{ include "app.fullname" . }}-migrations
+      labels:
+        {{- include "app.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: migrations
+    spec:
+      restartPolicy: {{ .Values.migrations.restartPolicy }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: wait-for-db
+          image: {{ .Values.migrations.waitForDatabase.image }}
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for database to be ready..."
+              echo "Database host: $DB_HOST"
+              echo "Database port: $DB_PORT"
+              echo "Database user: $DB_USER"
+              
+              ELAPSED=0
+              until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER"; do
+                echo "Database is unavailable - sleeping 2s"
+                sleep 2
+              done
+              echo "Database is ready!"
+          envFrom:
+            - configMapRef:
+                name: {{ include "app.fullname" . }}-configmap
+            - secretRef:
+                name: {{ include "app.fullname" $ }}-postgres-credentials
+          resources:
+            {{- toYaml .Values.migrations.waitForDatabase.resources | nindent 12 }}
+      containers:
+        - name: alembic-migrations
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["alembic", "upgrade", "head"]
+          envFrom:
+            - configMapRef:
+                name: {{ include "app.fullname" . }}-configmap
+            - secretRef:
+                name: {{ include "app.fullname" $ }}-postgres-credentials
+          resources:
+            {{- toYaml .Values.migrations.resources | nindent 12 }}
+      {{- with .Values.migrations.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.migrations.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.migrations.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

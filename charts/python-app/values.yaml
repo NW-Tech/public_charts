@@ -238,6 +238,17 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+redis:
+  enabled: false
+  image:
+    repository: bitnamilegacy/redis
+    tag: 8.2.1
+  fullnameOverride: redis
+  auth:
+    enabled: false
+  architecture: standalone
+
 celeryWorker:
   enabled: false
   workers:

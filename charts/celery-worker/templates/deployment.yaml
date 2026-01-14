@@ -9,7 +9,7 @@ metadata:
     {{- include "celery-worker.labels" $ | nindent 4 }}
 spec:
   {{- if not $.Values.workers.autoscaling.enabled }}
-  replicas: {{ $.Values.replicaCount }}
+  replicas: {{ $worker.replicaCount | default $.Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:

@@ -69,7 +69,7 @@ Create the command array for the worker with proper base path substitution
 {{- $basePath := .Values.workers.basePath | default "worker" }}
 {{- $baseCeleryAppPath := printf "%s.celery_app" $basePath }}
 {{- if eq .worker.type "worker" -}}
-poetry run celery -A {{ $baseCeleryAppPath }} worker --loglevel=info --concurrency=1
+poetry run celery -A {{ $baseCeleryAppPath }} worker --loglevel=info --concurrency={{ .Values.workers.concurrency | default 1 }}
 {{- else if eq .worker.type "beat" -}}
 poetry run celery -A {{ $baseCeleryAppPath }} beat -S celery_sqlalchemy_scheduler.schedulers:DatabaseScheduler -l info -s /tmp/celerybeat-schedule --pidfile=/tmp/celery-beat.pid
 {{- else if .worker.cmd -}}

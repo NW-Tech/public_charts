@@ -138,6 +138,7 @@ tolerations: []
 
 workers:
   basePath: # to_set
+  concurrency: 1
   autoscaling:
     enabled: false
   workers:

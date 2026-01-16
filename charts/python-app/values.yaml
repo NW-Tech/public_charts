@@ -15,7 +15,7 @@ cluster:
 
   cluster:
     instances: 2
-    # https://cloudnative-pg.io/documentation/preview/replication/#logical-decoding-slot-synchronization
+    # https://cloudnative-pg.io/docs/1.27/replication/#logical-decoding-slot-synchronization
     imageName: "ghcr.io/cloudnative-pg/postgresql:17-system-trixie"
     replicationSlots:
       highAvailability:
@@ -248,6 +248,12 @@ redis:
   auth:
     enabled: false
   architecture: standalone
+  master:
+    service:
+      type: LoadBalancer
+      loadBalancerIP: # from_cd
+      annotations:
+        networking.gke.io/load-balancer-type: Internal
 
 celeryWorker:
   enabled: false

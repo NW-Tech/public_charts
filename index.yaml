@@ -638,6 +638,16 @@ entries:
     urls:
     - celery-worker-0.1.0.tgz
     version: 0.1.0
+  cert-manager-webhook-ovh:
+  - apiVersion: v1
+    appVersion: 0.3.2
+    created: "2026-01-16T15:50:12.517421683Z"
+    description: OVH DNS cert-manager ACME webhook
+    digest: 0edd0605b4b2f0e3944079c935b697be447f41083205c41f8fa9b3625a18048c
+    name: cert-manager-webhook-ovh
+    urls:
+    - cert-manager-webhook-ovh-0.3.2.tgz
+    version: 0.3.2
   cluster:
   - apiVersion: v2
     created: "2025-09-16T10:10:52.46911768Z"
@@ -1711,4 +1721,4 @@ entries:
     urls:
     - python-app-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-16T13:06:10.826752862Z"
+generated: "2026-01-16T15:50:12.517688221Z"

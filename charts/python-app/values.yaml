@@ -307,7 +307,7 @@ podMonitor:
   port: http
   path: /metrics
   interval: 5s
-  scrapeTimeout: 10s
+  scrapeTimeout: 5s
   labels: {}
   relabelings: []
   metricRelabelings: []

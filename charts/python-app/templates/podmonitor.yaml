@@ -1,4 +1,4 @@
-{{- if (and .Values.monitoring.enabled .Values.monitoring.podMonitor.enabled) }}
+{{- if .Values.podMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
@@ -6,7 +6,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "app.labels" . | nindent 4 }}
-    {{- with .Values.monitoring.podMonitor.labels }}
+    {{- with .Values.podMonitor.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
@@ -19,15 +19,15 @@ spec:
       - {{ .Release.Namespace }}
 
   podMetricsEndpoints:
-    - port: {{ .Values.monitoring.podMonitor.port }}
-      path: {{ .Values.monitoring.podMonitor.path }}
-      interval: {{ .Values.monitoring.podMonitor.interval }}
-      scrapeTimeout: {{ .Values.monitoring.podMonitor.scrapeTimeout }}
-      {{- with .Values.monitoring.podMonitor.relabelings }}
+    - port: {{ .Values.podMonitor.port }}
+      path: {{ .Values.podMonitor.path }}
+      interval: {{ .Values.podMonitor.interval }}
+      scrapeTimeout: {{ .Values.podMonitor.scrapeTimeout }}
+      {{- with .Values.podMonitor.relabelings }}
       relabelings:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.monitoring.podMonitor.metricRelabelings }}
+      {{- with .Values.podMonitor.metricRelabelings }}
       metricRelabelings:
         {{- toYaml . | nindent 8 }}
       {{- end }}

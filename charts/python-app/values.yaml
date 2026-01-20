@@ -302,56 +302,12 @@ celeryWorker:
     secrets:
       CELERY_BROKER_PASSWORD: # from_cd
 
-monitoring:
+podMonitor:
   enabled: false
-  podMonitor:
-    enabled: false
-    port: http
-    path: /metrics
-    interval: 5s
-    scrapeTimeout: 10s
-    labels: {}
-    relabelings: []
-    metricRelabelings: []
-
-  prometheus:
-    enabled: false
-    replicas: 1
-
-    service:
-      type: LoadBalancer
-      port: 9090
-      loadBalancerIP: # from_cd
-      annotations:
-        networking.gke.io/load-balancer-type: Internal
-
-    serviceMonitorSelector: {}
-
-    resources:
-      limits:
-        memory: 2Gi
-        cpu: 1000m
-      requests:
-        memory: 100Mi
-        cpu: 200m
-
-    storage:
-      enabled: true
-      size: 20Gi
-      accessModes:
-        - ReadWriteOnce
-
-    retention: 7d
-
-    securityContext:
-      fsGroup: 2000
-      runAsNonRoot: true
-      runAsUser: 1000
-
-    enableAdminAPI: false
-
-    additionalScrapeConfigs: []
-    # Example:
-    # - job_name: 'additional-service'
-    #   static_configs:
-    #     - targets: ['service:8080']
+  port: http
+  path: /metrics
+  interval: 5s
+  scrapeTimeout: 10s
+  labels: {}
+  relabelings: []
+  metricRelabelings: []

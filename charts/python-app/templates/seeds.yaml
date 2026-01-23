@@ -1,0 +1,77 @@
+{{- if .Values.seeds.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "app.fullname" . }}-seeds
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+    app.kubernetes.io/component: seeds
+  annotations:
+    "helm.sh/hook": post-install,pre-upgrade
+    "helm.sh/hook-weight": {{ .Values.seeds.hookWeight | quote }}
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+    "helm.sh/hook-timeout": {{ .Values.seeds.hookTimeout | quote }}
+spec:
+  backoffLimit: {{ .Values.seeds.backoffLimit }}
+  ttlSecondsAfterFinished: {{ .Values.seeds.ttlSecondsAfterFinished }}
+  template:
+    metadata:
+      name: {{ include "app.fullname" . }}-seeds
+      labels:
+        {{- include "app.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: seeds
+    spec:
+      restartPolicy: {{ .Values.seeds.restartPolicy }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: wait-for-db
+          image: {{ .Values.seeds.waitForDatabase.image }}
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for database..."
+              until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER"; do
+                sleep 2
+              done
+              echo "Database ready"
+          envFrom:
+            - configMapRef:
+                name: {{ include "app.fullname" . }}-configmap
+            - secretRef:
+                name: {{ include "app.fullname" $ }}-postgres-credentials
+          resources:
+            {{- toYaml .Values.seeds.waitForDatabase.resources | nindent 12 }}
+      containers:
+        - name: seeds
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            {{- toYaml .Values.seeds.command | nindent 12 }}
+          env:
+            # Force Python to be unbuffered for immediate log output
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          envFrom:
+            - configMapRef:
+                name: {{ include "app.fullname" . }}-configmap
+            - secretRef:
+                name: {{ include "app.fullname" $ }}-postgres-credentials
+          resources:
+            {{- toYaml .Values.seeds.resources | nindent 12 }}
+      {{- with .Values.seeds.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.seeds.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.seeds.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

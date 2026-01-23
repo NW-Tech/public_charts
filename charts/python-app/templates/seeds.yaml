@@ -26,25 +26,6 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      initContainers:
-        - name: wait-for-db
-          image: {{ .Values.seeds.waitForDatabase.image }}
-          command:
-            - sh
-            - -c
-            - |
-              echo "Waiting for database..."
-              until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER"; do
-                sleep 2
-              done
-              echo "Database ready"
-          envFrom:
-            - configMapRef:
-                name: {{ include "app.fullname" . }}-configmap
-            - secretRef:
-                name: {{ include "app.fullname" $ }}-postgres-credentials
-          resources:
-            {{- toYaml .Values.seeds.waitForDatabase.resources | nindent 12 }}
       containers:
         - name: seeds
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

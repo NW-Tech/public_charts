@@ -175,15 +175,6 @@ seeds:
   backoffLimit: 3
   ttlSecondsAfterFinished: 100
   command: [] # to_set
-  waitForDatabase:
-    image: "ghcr.io/cloudnative-pg/postgresql:17-system-trixie"
-    resources:
-      limits:
-        cpu: 100m
-        memory: 64Mi
-      requests:
-        cpu: 50m
-        memory: 32Mi
   resources:
     limits:
       cpu: 200m

@@ -14,7 +14,8 @@ spec:
         ingress:
           ingressClassName: {{ .Values.certIssuer.httpResolver.ingressClass }}
     {{- end }}
-    {{- range .Values.certIssuer.resolvers }}
-    - 
-{{ toYaml . | indent 6 }}
+    {{- if .Values.certIssuer.dnsResolver.enabled }}
+    - dns01:
+      {{- .Values.certIssuer.dnsResolver | toYaml | nindent 8 }}
+      {{- index .Values .Values.certIssuer.dnsResolver.resolver "resolver" | toYaml | nindent 8 }}
     {{- end }}

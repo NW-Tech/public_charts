@@ -2,6 +2,13 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+groupName: &groupName "test.nwstorm.io"
+dnsSolverApplicationKey: &dnsSolverApplicationKey ""
+dnsSolverApplicationSecret: &dnsSolverApplicationSecret ""
+dnsSolverConsumerKey: &dnsSolverConsumerKey ""
+httpSolverEnabled: &httpSolverEnabled true
+dnsSolverEnabled: &dnsSolverEnabled false
+
 certIssuer:
   nameOverride: ""
   fullnameOverride: ""
@@ -10,6 +17,29 @@ certIssuer:
   secretName: letsencrypt-credentials
   server: https://acme-v02.api.letsencrypt.org/directory
   httpResolver:
-    enabled: true
+    enabled: *httpSolverEnabled
     ingressClass: traefik
+  dnsResolver:
+    enabled: *dnsSolverEnabled
+    resolver: cert-manager-webhook-ovh
   resolvers: []
+  extraSecrets:
+    ovh-credentials:
+      applicationSecret: *dnsSolverApplicationSecret
+
+cert-manager-webhook-ovh:
+  nameOverride: "cert-manager-webhook-ovh"
+  fullnameOverride: "cert-manager-webhook-ovh"
+  enabled: *dnsSolverEnabled
+  groupName: *groupName
+  resolver:
+    webhook:
+      groupName: *groupName
+      solverName: ovh
+      config:
+        endpoint: ovh-eu
+        applicationKey: *dnsSolverApplicationKey
+        applicationSecretRef:
+          key: applicationSecret
+          name: ovh-credentials
+        consumerKey: *dnsSolverConsumerKey

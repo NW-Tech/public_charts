@@ -1,0 +1,26 @@
+---
+# Source: cluster-issuer/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ovh-credentials
+  namespace: cert-manager
+type: Opaque
+data:
+  applicationSecret:  ""
+---
+# Source: cluster-issuer/templates/issuer.yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: lets-encrypt-http-issuer-production
+spec:
+  acme:
+    email: 
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-credentials
+    solvers:
+    - http01:
+        ingress:
+          ingressClassName: traefik

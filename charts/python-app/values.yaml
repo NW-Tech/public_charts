@@ -26,7 +26,7 @@ cluster:
       size: 75Gi
     walStorage:
       enabled: true
-      size: 10Gi
+      size: 20Gi
     monitoring:
       enabled: true
     initdb:
@@ -42,7 +42,7 @@ cluster:
         max_wal_senders: "10"
         max_wal_size: 5GB
         max_replication_slots: "10"
-        max_slot_wal_keep_size: 8GB
+        max_slot_wal_keep_size: 15GB
         hot_standby_feedback: "on"
         sync_replication_slots: "on"
         log_autovacuum_min_duration: "5000"

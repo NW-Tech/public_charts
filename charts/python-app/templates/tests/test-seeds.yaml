@@ -1,0 +1,36 @@
+{{- if .Values.seeds.enabled }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "app.fullname" . }}-test-seeds"
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: check-db-ready
+      image: {{ .Values.seeds.waitForDatabase.image }}
+      command:
+        - sh
+        - -c
+        - |
+          echo "Checking database connection..."
+          if pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER"; then
+            echo "Database is ready for seeding."
+            exit 0
+          else
+            echo "Database is not reachable."
+            exit 1
+          fi
+      envFrom:
+        - configMapRef:
+            name: {{ include "app.fullname" . }}-configmap
+        - secretRef:
+            name: {{ include "app.fullname" $ }}-postgres-credentials
+      {{- with .Values.seeds.waitForDatabase.resources }}
+      resources:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  restartPolicy: Never
+{{- end }}

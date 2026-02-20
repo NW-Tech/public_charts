@@ -170,6 +170,25 @@ migrations:
   affinity: {}
   tolerations: []
 
+seeds:
+  enabled: false
+  hookWeight: "5"
+  restartPolicy: OnFailure
+  hookTimeout: "300"
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 100
+  command: [] # to_set
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+
 deployment:
   command:
     - "/bin/sh"

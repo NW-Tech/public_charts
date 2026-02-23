@@ -7,8 +7,8 @@ metadata:
     {{- include "app.labels" . | nindent 4 }}
     app.kubernetes.io/component: seeds
   annotations:
-    "helm.sh/hook": post-install,pre-upgrade
-    "helm.sh/hook-weight": {{ .Values.seeds.hookWeight | quote }}
+    "helm.sh/hook": "post-install,post-upgrade"
+    "helm.sh/hook-weight": {{ add .Values.migrations.hookWeight 5 | quote }}
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
     "helm.sh/hook-timeout": {{ .Values.seeds.hookTimeout | quote }}
 spec:

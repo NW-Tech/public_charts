@@ -63,6 +63,8 @@ stringData:
     probes:
       - target: {{ include "emqx-broker.fullname" . }}-listeners:1883
         client_id: "emqx_exporter_probe_client"
+        username: {{ .Values.monitoring.probeUsername }}
+        password: {{ .Values.monitoring.probePassword }}
 ---
 apiVersion: v1
 kind: Service

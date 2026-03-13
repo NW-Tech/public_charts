@@ -37,6 +37,9 @@ spec:
           image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           command:
+            {{- if $worker.entrypoint }}
+            - {{ $worker.entrypoint }}
+            {{- end }}
             - /bin/sh
             - -c
             - {{ include "celery-worker.command" (dict "worker" $worker "Values" $.Values) }}

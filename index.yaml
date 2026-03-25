@@ -756,6 +756,21 @@ entries:
   cluster-issuer:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2026-03-25T15:51:12.764360921Z"
+    dependencies:
+    - condition: cert-manager-webhook-ovh.enabled
+      name: cert-manager-webhook-ovh
+      repository: https://nw-tech.github.io/public_charts/
+      version: 0.3.2
+    description: A Helm chart for Kubernetes
+    digest: cad214a1d079373f81877d0c3d0e727b1dce72b0f59972f55e5a7654e830c449
+    name: cluster-issuer
+    type: application
+    urls:
+    - cluster-issuer-0.2.2.tgz
+    version: 0.2.2
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2026-03-25T15:29:38.148756757Z"
     dependencies:
     - condition: cert-manager-webhook-ovh.enabled
@@ -1929,4 +1944,4 @@ entries:
     urls:
     - python-app-0.1.0.tgz
     version: 0.1.0
-generated: "2026-03-25T15:29:38.148990699Z"
+generated: "2026-03-25T15:51:12.764610437Z"

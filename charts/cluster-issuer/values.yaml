@@ -3,16 +3,16 @@
 # Declare variables to be passed into your templates.
 
 groupName: &groupName "test.nwstorm.io"
-dnsSolverApplicationKey: &dnsSolverApplicationKey ""
-dnsSolverApplicationSecret: &dnsSolverApplicationSecret ""
-dnsSolverConsumerKey: &dnsSolverConsumerKey ""
+dnsSolverApplicationKey: &dnsSolverApplicationKey "63078835f84fafdd"
+dnsSolverApplicationSecret: &dnsSolverApplicationSecret "c27c767020730b38d86c1b1ee5a5d107"
+dnsSolverConsumerKey: &dnsSolverConsumerKey "e2489bf9d7b151551128d82fdca88cd3"
 httpSolverEnabled: &httpSolverEnabled true
-dnsSolverEnabled: &dnsSolverEnabled false
+dnsSolverEnabled: &dnsSolverEnabled true
 
 certIssuer:
   nameOverride: ""
   fullnameOverride: ""
-  email: "" # This is a required field if create == true
+  email: "vincent.dudek@nw-groupe.com" # This is a required field if create == true
   name: lets-encrypt-http-issuer-production
   secretName: letsencrypt-credentials
   server: https://acme-v02.api.letsencrypt.org/directory
@@ -23,7 +23,7 @@ certIssuer:
       metadata:
         annotations:
           traefik.ingress.kubernetes.io/router.entrypoints: web
-          traefik.ingress.kubernetes.io/router.priority: 1024
+          traefik.ingress.kubernetes.io/router.priority: "1024"
   dnsResolver:
     enabled: *dnsSolverEnabled
     resolver: cert-manager-webhook-ovh

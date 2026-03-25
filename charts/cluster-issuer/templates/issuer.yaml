@@ -13,6 +13,7 @@ spec:
     - http01:
         ingress:
           ingressClassName: {{ .Values.certIssuer.httpResolver.ingressClass }}
+          ingressTemplate: {{ .Values.certIssuer.httpResolver.ingressTemplate | toYaml | nindent 12 }}
     {{- end }}
     {{- if .Values.certIssuer.dnsResolver.enabled }}
     - dns01:

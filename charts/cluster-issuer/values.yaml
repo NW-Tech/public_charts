@@ -19,6 +19,11 @@ certIssuer:
   httpResolver:
     enabled: *httpSolverEnabled
     ingressClass: traefik
+    ingressTemplate:
+      metadata:
+        annotations:
+          traefik.ingress.kubernetes.io/router.entrypoints: web
+          traefik.ingress.kubernetes.io/router.priority: 1024
   dnsResolver:
     enabled: *dnsSolverEnabled
     resolver: cert-manager-webhook-ovh

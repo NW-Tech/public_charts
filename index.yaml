@@ -915,6 +915,30 @@ entries:
   python-app:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2026-03-31T13:05:33.050833514Z"
+    dependencies:
+    - condition: cluster.enabled
+      name: cluster
+      repository: https://nw-tech.github.io/public_charts/
+      version: 0.3.4
+    - alias: celeryWorker
+      condition: celeryWorker.enabled
+      name: celery-worker
+      repository: https://nw-tech.github.io/public_charts/
+      version: 0.1.24
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 24.1.0
+    description: A Helm chart for Kubernetes
+    digest: cb727190c3e80e60a9ff8a97198c0dfbf7a1453ddea5d02bb822ea0b04c92f2c
+    name: python-app
+    type: application
+    urls:
+    - python-app-0.1.50.tgz
+    version: 0.1.50
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2026-03-24T14:50:59.783416035Z"
     dependencies:
     - condition: cluster.enabled
@@ -1944,4 +1968,4 @@ entries:
     urls:
     - python-app-0.1.0.tgz
     version: 0.1.0
-generated: "2026-03-25T15:51:12.764610437Z"
+generated: "2026-03-31T13:05:33.051096936Z"

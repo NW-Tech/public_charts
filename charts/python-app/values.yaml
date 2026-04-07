@@ -236,6 +236,13 @@ autoscaling:
   targetCPUUtilizationPercentage: 90
   targetMemoryUtilizationPercentage: 90
 
+podDisruptionBudget:
+  enabled: false
+  # Only one of maxUnavailable or minAvailable should be set
+  # Accepts an integer or a percentage string (e.g. "50%")
+  # maxUnavailable: 1
+  # minAvailable: 1
+
 nodeSelector: {}
 
 tolerations: []

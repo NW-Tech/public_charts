@@ -144,3 +144,49 @@ Postgres GID
     {{- 26 -}}
   {{- end -}}
 {{- end -}}
+
+{{/*
+Validate PodDisruptionBudget configuration for a pooler.
+Expects a dict with: "pooler" (the pooler entry) and "instances" (effective instance count).
+*/}}
+{{- define "cluster.validatePoolerPdb" -}}
+{{- $pooler := .pooler }}
+{{- $instances := int .instances }}
+
+{{/* Validate: at least one of maxUnavailable or minAvailable must be set */}}
+{{- if and (not (hasKey $pooler.podDisruptionBudget "maxUnavailable")) (not (hasKey $pooler.podDisruptionBudget "minAvailable")) }}
+  {{ fail (printf "pooler '%s': podDisruptionBudget is enabled but neither maxUnavailable nor minAvailable is set. Please set exactly one." $pooler.name) }}
+{{- end }}
+
+{{/* Validate: maxUnavailable and minAvailable are mutually exclusive */}}
+{{- if and (hasKey $pooler.podDisruptionBudget "maxUnavailable") (hasKey $pooler.podDisruptionBudget "minAvailable") }}
+  {{ fail (printf "pooler '%s': podDisruptionBudget.maxUnavailable and minAvailable are mutually exclusive. Please set only one." $pooler.name) }}
+{{- end }}
+
+{{/* Validate maxUnavailable: instances - maxUnavailable must be > 0 */}}
+{{- if hasKey $pooler.podDisruptionBudget "maxUnavailable" }}
+  {{- if or (kindIs "float64" $pooler.podDisruptionBudget.maxUnavailable) (kindIs "int64" $pooler.podDisruptionBudget.maxUnavailable) }}
+    {{- $val := int $pooler.podDisruptionBudget.maxUnavailable }}
+    {{- if le $val 0 }}
+      {{ fail (printf "pooler '%s': podDisruptionBudget.maxUnavailable must be a positive integer, got %d" $pooler.name $val) }}
+    {{- end }}
+    {{- if ge $val $instances }}
+      {{ fail (printf "pooler '%s': podDisruptionBudget.maxUnavailable (%d) must be strictly less than instances (%d). Difference must be > 0." $pooler.name $val $instances) }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{/* Validate minAvailable: instances - minAvailable must be > 0 */}}
+{{- if hasKey $pooler.podDisruptionBudget "minAvailable" }}
+  {{- if or (kindIs "float64" $pooler.podDisruptionBudget.minAvailable) (kindIs "int64" $pooler.podDisruptionBudget.minAvailable) }}
+    {{- $val := int $pooler.podDisruptionBudget.minAvailable }}
+    {{- if le $val 0 }}
+      {{ fail (printf "pooler '%s': podDisruptionBudget.minAvailable must be a positive integer, got %d" $pooler.name $val) }}
+    {{- end }}
+    {{- if ge $val $instances }}
+      {{ fail (printf "pooler '%s': podDisruptionBudget.minAvailable (%d) must be strictly less than instances (%d). Difference must be > 0." $pooler.name $val $instances) }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- end }}

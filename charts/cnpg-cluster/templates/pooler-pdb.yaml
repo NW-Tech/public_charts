@@ -1,0 +1,23 @@
+{{- range .Values.poolers }}
+{{- if and .podDisruptionBudget .podDisruptionBudget.enabled }}
+{{- include "cluster.validatePoolerPdb" (dict "pooler" . "instances" .instances) }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "cluster.fullname" $ }}-pooler-{{ .name }}
+  namespace: {{ include "cluster.namespace" $ }}
+  labels:
+    {{- include "cluster.labels" $ | nindent 4 }}
+spec:
+  {{- if hasKey .podDisruptionBudget "maxUnavailable" }}
+  maxUnavailable: {{ .podDisruptionBudget.maxUnavailable }}
+  {{- end }}
+  {{- if hasKey .podDisruptionBudget "minAvailable" }}
+  minAvailable: {{ .podDisruptionBudget.minAvailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      cnpg.io/poolerName: {{ include "cluster.fullname" $ }}-pooler-{{ .name }}
+{{- end }}
+{{- end }}

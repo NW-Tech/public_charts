@@ -490,6 +490,11 @@ poolers: []
   #   # -- Custom PgBouncer service template.
   #   # Use to override service type, ports, etc.
   #   serviceTemplate: {}
+  #   # -- PodDisruptionBudget for this pooler
+  #   # Only one of maxUnavailable or minAvailable should be set
+  #   podDisruptionBudget:
+  #     enabled: false
+  #     minAvailable: 1
   # -
   #   # -- Pooler name
   #   name: ro
@@ -515,3 +520,8 @@ poolers: []
   #   # -- Custom PgBouncer service template.
   #   # Use to override service type, ports, etc.
   #   serviceTemplate: {}
+  #   # -- PodDisruptionBudget for this pooler
+  #   # Only one of maxUnavailable or minAvailable should be set
+  #   podDisruptionBudget:
+  #     enabled: false
+  #     minAvailable: 1

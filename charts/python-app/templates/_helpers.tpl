@@ -84,8 +84,9 @@ Called from pdb.yaml when podDisruptionBudget is enabled.
 {{- end }}
 
 {{/* Validate maxUnavailable: replicaCount - maxUnavailable must be > 0 */}}
+{{/* Numeric check handles both float64 (YAML values files) and int64 (--set flag) */}}
 {{- if hasKey .Values.podDisruptionBudget "maxUnavailable" }}
-  {{- if kindIs "float64" .Values.podDisruptionBudget.maxUnavailable }}
+  {{- if or (kindIs "float64" .Values.podDisruptionBudget.maxUnavailable) (kindIs "int64" .Values.podDisruptionBudget.maxUnavailable) }}
     {{- $maxUnavailable := int .Values.podDisruptionBudget.maxUnavailable }}
     {{- if le $maxUnavailable 0 }}
       {{ fail (printf "podDisruptionBudget.maxUnavailable must be a positive integer, got %d" $maxUnavailable) }}
@@ -98,7 +99,7 @@ Called from pdb.yaml when podDisruptionBudget is enabled.
 
 {{/* Validate minAvailable: replicaCount - minAvailable must be > 0 */}}
 {{- if hasKey .Values.podDisruptionBudget "minAvailable" }}
-  {{- if kindIs "float64" .Values.podDisruptionBudget.minAvailable }}
+  {{- if or (kindIs "float64" .Values.podDisruptionBudget.minAvailable) (kindIs "int64" .Values.podDisruptionBudget.minAvailable) }}
     {{- $minAvailable := int .Values.podDisruptionBudget.minAvailable }}
     {{- if le $minAvailable 0 }}
       {{ fail (printf "podDisruptionBudget.minAvailable must be a positive integer, got %d" $minAvailable) }}

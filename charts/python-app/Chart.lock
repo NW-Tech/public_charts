@@ -1,12 +1,12 @@
 dependencies:
 - name: cluster
   repository: https://nw-tech.github.io/public_charts/
-  version: 0.3.4
+  version: 0.3.5
 - name: celery-worker
   repository: https://nw-tech.github.io/public_charts/
   version: 0.1.24
 - name: redis
   repository: https://charts.bitnami.com/bitnami
   version: 24.1.0
-digest: sha256:f18ae2b05c4af65576c5382aaf45953eb003495235e93fa3d368c2a55298069d
-generated: "2026-03-13T15:17:17.437162+01:00"
+digest: sha256:79436b1365cd80ffe173a6d2ac99361e3abcf050984cd02c16246eb827c25a56
+generated: "2026-04-09T17:31:29.228623+02:00"

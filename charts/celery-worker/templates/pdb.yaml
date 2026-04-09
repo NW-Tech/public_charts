@@ -1,0 +1,25 @@
+{{- range $worker_name, $worker := .Values.workers.workers }}
+{{- if and $worker.enabled (eq $worker.type "worker") (dig "podDisruptionBudget" "enabled" false $worker) }}
+{{- include "celery-worker.validateWorkerPdb" (dict "workerName" $worker_name "worker" $worker "Values" $.Values) }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "celery-worker.fullname" $ }}-{{ $worker_name }}
+  labels:
+    {{- include "celery-worker.labels" $ | nindent 4 }}
+spec:
+  {{- if hasKey $worker.podDisruptionBudget "maxUnavailable" }}
+  maxUnavailable: {{ $worker.podDisruptionBudget.maxUnavailable }}
+  {{- end }}
+  {{- if hasKey $worker.podDisruptionBudget "minAvailable" }}
+  minAvailable: {{ $worker.podDisruptionBudget.minAvailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "celery-worker.selectorLabels" $ | nindent 6 }}
+      celery-worker.io/worker: {{ $worker_name }}
+
+---
+
+{{- end }}
+{{- end }}

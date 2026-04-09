@@ -62,6 +62,61 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+Validate PodDisruptionBudget configuration for a celery worker.
+Called from pdb.yaml for each worker with PDB enabled.
+Expects a dict with keys: workerName, worker, Values.
+*/}}
+{{- define "celery-worker.validateWorkerPdb" -}}
+{{- $workerName := .workerName -}}
+{{- $worker := .worker -}}
+{{- $pdb := $worker.podDisruptionBudget -}}
+
+{{/* Determine effective replica count */}}
+{{- $effectiveReplicas := int ($worker.replicaCount | default .Values.replicaCount) }}
+{{- if .Values.workers.autoscaling.enabled }}
+  {{- $effectiveReplicas = int (.Values.workers.autoscaling.minReplicas | default 1) }}
+{{- end }}
+
+{{/* Validate: at least one of maxUnavailable or minAvailable must be set */}}
+{{- if and (not (hasKey $pdb "maxUnavailable")) (not (hasKey $pdb "minAvailable")) }}
+  {{ fail (printf "worker '%s': podDisruptionBudget is enabled but neither maxUnavailable nor minAvailable is set. Please set exactly one." $workerName) }}
+{{- end }}
+
+{{/* Validate: maxUnavailable and minAvailable are mutually exclusive */}}
+{{- if and (hasKey $pdb "maxUnavailable") (hasKey $pdb "minAvailable") }}
+  {{ fail (printf "worker '%s': podDisruptionBudget maxUnavailable and minAvailable are mutually exclusive. Please set only one." $workerName) }}
+{{- end }}
+
+{{/* Validate maxUnavailable: replicaCount - maxUnavailable must be > 0 */}}
+{{/* Numeric check handles both float64 (YAML values files) and int64 (--set flag) */}}
+{{- if hasKey $pdb "maxUnavailable" }}
+  {{- if or (kindIs "float64" $pdb.maxUnavailable) (kindIs "int64" $pdb.maxUnavailable) }}
+    {{- $maxUnavailable := int $pdb.maxUnavailable }}
+    {{- if le $maxUnavailable 0 }}
+      {{ fail (printf "worker '%s': podDisruptionBudget.maxUnavailable must be a positive integer, got %d" $workerName $maxUnavailable) }}
+    {{- end }}
+    {{- if ge $maxUnavailable $effectiveReplicas }}
+      {{ fail (printf "worker '%s': podDisruptionBudget.maxUnavailable (%d) must be strictly less than the effective replica count (%d). Difference must be > 0." $workerName $maxUnavailable $effectiveReplicas) }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{/* Validate minAvailable: replicaCount - minAvailable must be > 0 */}}
+{{- if hasKey $pdb "minAvailable" }}
+  {{- if or (kindIs "float64" $pdb.minAvailable) (kindIs "int64" $pdb.minAvailable) }}
+    {{- $minAvailable := int $pdb.minAvailable }}
+    {{- if le $minAvailable 0 }}
+      {{ fail (printf "worker '%s': podDisruptionBudget.minAvailable must be a positive integer, got %d" $workerName $minAvailable) }}
+    {{- end }}
+    {{- if ge $minAvailable $effectiveReplicas }}
+      {{ fail (printf "worker '%s': podDisruptionBudget.minAvailable (%d) must be strictly less than the effective replica count (%d). Difference must be > 0." $workerName $minAvailable $effectiveReplicas) }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- end }}
+
+{{/*
 Create the command array for the worker with proper base path substitution
 */}}
 {{- define "celery-worker.command" -}}

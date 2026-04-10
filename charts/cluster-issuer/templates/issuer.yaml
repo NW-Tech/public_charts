@@ -9,14 +9,22 @@ spec:
     privateKeySecretRef:
       name: {{ .Values.certIssuer.secretName }}
     solvers:
-    {{- if .Values.certIssuer.httpResolver.enabled }}
+    {{- if .Values.httpSolverEnabled }}
     - http01:
         ingress:
           ingressClassName: {{ .Values.certIssuer.httpResolver.ingressClass }}
           ingressTemplate: {{ .Values.certIssuer.httpResolver.ingressTemplate | toYaml | nindent 12 }}
     {{- end }}
-    {{- if .Values.certIssuer.dnsResolver.enabled }}
+    {{- if .Values.dnsSolverEnabled }}
     - dns01:
-      {{- .Values.certIssuer.dnsResolver | toYaml | nindent 8 }}
-      {{- index .Values .Values.certIssuer.dnsResolver.resolver "resolver" | toYaml | nindent 8 }}
+        webhook:
+          groupName: {{ .Values.groupName }}
+          solverName: ovh
+          config:
+            endpoint: ovh-eu
+            applicationKey: {{ .Values.dnsSolverApplicationKey }}
+            applicationSecretRef:
+              key: applicationSecret
+              name: ovh-credentials
+            consumerKey: {{ .Values.dnsSolverConsumerKey }}
     {{- end }}

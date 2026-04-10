@@ -2,12 +2,12 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-groupName: &groupName "test.nwstorm.io"
-dnsSolverApplicationKey: &dnsSolverApplicationKey "63078835f84fafdd"
-dnsSolverApplicationSecret: &dnsSolverApplicationSecret "c27c767020730b38d86c1b1ee5a5d107"
-dnsSolverConsumerKey: &dnsSolverConsumerKey "e2489bf9d7b151551128d82fdca88cd3"
+groupName: &groupName ""
+dnsSolverApplicationKey: &dnsSolverApplicationKey ""
+dnsSolverApplicationSecret: &dnsSolverApplicationSecret ""
+dnsSolverConsumerKey: &dnsSolverConsumerKey ""
 httpSolverEnabled: &httpSolverEnabled true
-dnsSolverEnabled: &dnsSolverEnabled true
+dnsSolverEnabled: &dnsSolverEnabled false
 
 certIssuer:
   nameOverride: ""

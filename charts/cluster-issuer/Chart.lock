@@ -1,6 +1,6 @@
 dependencies:
 - name: cert-manager-webhook-ovh
   repository: https://nw-tech.github.io/public_charts/
-  version: 0.3.2
-digest: sha256:c7bdfc112381fabb08ca15aec94970c8945d8d10e14c052ea47faa004e2e7b38
-generated: "2026-04-10T12:31:14.381267+02:00"
+  version: 0.3.3
+digest: sha256:9e0cd803bc4521009819f96900543760a459aab2d9ed8725286b835b53612d29
+generated: "2026-04-10T14:31:40.248968+02:00"

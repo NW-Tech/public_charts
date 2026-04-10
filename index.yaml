@@ -689,6 +689,15 @@ entries:
   cert-manager-webhook-ovh:
   - apiVersion: v1
     appVersion: 0.3.2
+    created: "2026-04-10T12:30:48.545159959Z"
+    description: OVH DNS cert-manager ACME webhook
+    digest: e94db4e1ab3d61ca12b2795b8e192f910c92cb157e5879ab18b9b9822810d0ab
+    name: cert-manager-webhook-ovh
+    urls:
+    - cert-manager-webhook-ovh-0.3.3.tgz
+    version: 0.3.3
+  - apiVersion: v1
+    appVersion: 0.3.2
     created: "2026-01-16T15:50:12.517421683Z"
     description: OVH DNS cert-manager ACME webhook
     digest: 0edd0605b4b2f0e3944079c935b697be447f41083205c41f8fa9b3625a18048c
@@ -2051,4 +2060,4 @@ entries:
     urls:
     - python-app-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-10T11:54:02.161735841Z"
+generated: "2026-04-10T12:30:48.545439621Z"

@@ -65,7 +65,7 @@ metadata:
     heritage: {{ .Release.Service }}
 rules:
   - apiGroups:
-      - {{ .Values.groupName }}
+      - {{ .Values.global.groupName | default .Values.groupName }}
     resources:
       - '*'
     verbs:

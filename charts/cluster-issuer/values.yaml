@@ -2,12 +2,14 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-groupName: &groupName ""
-dnsSolverApplicationKey: &dnsSolverApplicationKey ""
-dnsSolverApplicationSecret: &dnsSolverApplicationSecret ""
-dnsSolverConsumerKey: &dnsSolverConsumerKey ""
-httpSolverEnabled: &httpSolverEnabled true
-dnsSolverEnabled: &dnsSolverEnabled false
+global:
+  groupName: ""
+
+dnsSolverApplicationKey: ""
+dnsSolverApplicationSecret: ""
+dnsSolverConsumerKey: ""
+httpSolverEnabled: true
+dnsSolverEnabled: false
 
 certIssuer:
   nameOverride: ""
@@ -17,34 +19,13 @@ certIssuer:
   secretName: letsencrypt-credentials
   server: https://acme-v02.api.letsencrypt.org/directory
   httpResolver:
-    enabled: *httpSolverEnabled
     ingressClass: traefik
     ingressTemplate:
       metadata:
         annotations:
           traefik.ingress.kubernetes.io/router.entrypoints: web
           traefik.ingress.kubernetes.io/router.priority: "1024"
-  dnsResolver:
-    enabled: *dnsSolverEnabled
-    resolver: cert-manager-webhook-ovh
-  resolvers: []
-  extraSecrets:
-    ovh-credentials:
-      applicationSecret: *dnsSolverApplicationSecret
 
 cert-manager-webhook-ovh:
   nameOverride: "cert-manager-webhook-ovh"
   fullnameOverride: "cert-manager-webhook-ovh"
-  enabled: *dnsSolverEnabled
-  groupName: *groupName
-  resolver:
-    webhook:
-      groupName: *groupName
-      solverName: ovh
-      config:
-        endpoint: ovh-eu
-        applicationKey: *dnsSolverApplicationKey
-        applicationSecretRef:
-          key: applicationSecret
-          name: ovh-credentials
-        consumerKey: *dnsSolverConsumerKey

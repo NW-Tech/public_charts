@@ -18,7 +18,7 @@ spec:
     {{- if .Values.dnsSolverEnabled }}
     - dns01:
         webhook:
-          groupName: {{ .Values.groupName }}
+          groupName: {{ .Values.global.groupName }}
           solverName: ovh
           config:
             endpoint: ovh-eu

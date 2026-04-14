@@ -12,6 +12,11 @@ cluster:
 
   publication:
     enabled: false
+    # Operations to publish. Defaults to insert, update, delete if not provided.
+    operations:
+      - insert
+      - update
+      - truncate
 
   cluster:
     instances: 2
@@ -269,6 +274,17 @@ celeryWorker:
   enabled: false
   workers:
     basePath: # to_set
+    # To enable PodDisruptionBudget on a worker, add podDisruptionBudget
+    # to the worker definition (only supported for type: worker, not beat):
+    #   workers:
+    #     celery-app-worker:
+    #       enabled: true
+    #       type: worker
+    #       queues:
+    #         - celery
+    #       podDisruptionBudget:
+    #         enabled: true
+    #         maxUnavailable: 1  # or minAvailable: 1 (mutually exclusive)
   cluster:
     enabled: true
     cluster:

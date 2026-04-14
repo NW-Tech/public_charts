@@ -26,6 +26,15 @@ bootstrap:
           {{- end -}}
       {{- end -}}
     {{- end }}
+{{- if and .Values.backups.enabled .Values.backups.replicaFromBackup }}
+
+externalClusters:
+  - name: objectStoreCluster
+    barmanObjectStore:
+      serverName: {{ include "cluster.fullname" . }}
+      {{- $d := dict "chartFullname" (include "cluster.fullname" .) "scope" .Values.backups "secretPrefix" "backup" -}}
+      {{- include "cluster.barmanObjectStoreConfig" $d | nindent 4 }}
+{{- end }}
 {{- else if eq .Values.mode "recovery" -}}
 bootstrap:
 {{- if eq .Values.recovery.method "pg_basebackup" }}

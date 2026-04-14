@@ -164,6 +164,9 @@
                             "type": "integer"
                         }
                     }
+                },
+                "replicaFromBackup": {
+                    "type": "boolean"
                 }
             }
         },

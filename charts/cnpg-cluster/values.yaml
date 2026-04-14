@@ -455,6 +455,13 @@ backups:
   # -- Retention policy for backups
   retentionPolicy: "30d"
 
+  # -- When enabled and backups are configured, adds the backup object store as an
+  # externalCluster source. This allows CNPG to rebuild replicas from the backup
+  # instead of using pg_basebackup from the primary.
+  # Note: On initial cluster creation, the first backup must complete before
+  # replicas can use this feature. CNPG falls back to pg_basebackup if no backup exists.
+  replicaFromBackup: false
+
 imageCatalog:
   # -- Whether to provision an image catalog. If imageCatalog.images is empty this option will be ignored.
   create: true

@@ -79,6 +79,7 @@ cluster:
 
   backups:
     enabled: true
+    replicaFromBackup: true
     secret:
       create: false
     provider: google

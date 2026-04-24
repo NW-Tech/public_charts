@@ -5,7 +5,7 @@ metadata:
   name: {{ include "app.fullname" . }}-publication
 spec:
   cluster:
-    name: {{ include "app.fullname" . }}-cluster
+    name: {{ .Release.Name }}-cluster
   dbname: {{ .Values.cluster.cluster.initdb.database }}
   name: {{ include "app.fullname" . }}-publication
   target:

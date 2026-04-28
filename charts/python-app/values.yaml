@@ -246,18 +246,16 @@ autoscaling:
   targetCPUUtilizationPercentage: 90
   targetMemoryUtilizationPercentage: 90
 
+nodeSelector: {}
+
+tolerations: []
+
 podDisruptionBudget:
   enabled: false
   # Only one of maxUnavailable or minAvailable should be set
   # Accepts an integer or a percentage string (e.g. "50%")
   # maxUnavailable: 1
   # minAvailable: 1
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
 
 # -- Quick-toggle pod anti-affinity using the chart's selector labels.
 # Ignored if `affinity` above is set (free-form override takes precedence).
@@ -286,24 +284,23 @@ celeryWorker:
   enabled: false
   workers:
     basePath: # to_set
-    # To enable PodDisruptionBudget on a worker, add podDisruptionBudget
-    # to the worker definition (only supported for type: worker, not beat):
     #   workers:
     #     celery-app-worker:
     #       enabled: true
     #       type: worker
     #       queues:
     #         - celery
+    # To enable PodDisruptionBudget on a worker, add podDisruptionBudget
+    # to the worker definition (only supported for type: worker, not beat):
     #       podDisruptionBudget:
     #         enabled: true
     #         maxUnavailable: 1  # or minAvailable: 1 (mutually exclusive)
     # To enable pod anti-affinity on a worker, use the podAntiAffinity toggle:
-    #   workers:
-    #     celery-app-worker:
     #       podAntiAffinity:
     #         enabled: true
     #         # topologyKey: kubernetes.io/hostname
     #         # podAntiAffinityType: preferred  # preferred | required
+    
   cluster:
     enabled: true
     cluster:

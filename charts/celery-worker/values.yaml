@@ -153,8 +153,7 @@ workers:
         # Accepts an integer or a percentage string (e.g. "50%")
         # maxUnavailable: 1
         # minAvailable: 1
-      # Quick-toggle pod anti-affinity matching this worker's selector labels.
-      # Ignored if `affinity` is set on this worker (free-form override wins).
+      # Pod anti-affinity matching this worker's selector labels.
       podAntiAffinity:
         enabled: false
         topologyKey: kubernetes.io/hostname

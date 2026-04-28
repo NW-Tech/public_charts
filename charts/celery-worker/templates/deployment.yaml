@@ -71,10 +71,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- $pa := $worker.podAntiAffinity | default dict }}
-      {{- if $worker.affinity }}
-      affinity:
-        {{- toYaml $worker.affinity | nindent 8 }}
-      {{- else if $pa.enabled }}
+      {{- if $pa.enabled }}
       affinity:
         podAntiAffinity:
           {{- if eq ($pa.podAntiAffinityType | default "preferred") "required" }}

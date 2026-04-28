@@ -257,8 +257,7 @@ podDisruptionBudget:
   # maxUnavailable: 1
   # minAvailable: 1
 
-# -- Quick-toggle pod anti-affinity using the chart's selector labels.
-# Ignored if `affinity` above is set (free-form override takes precedence).
+# -- Pod anti-affinity using the chart's selector labels.
 podAntiAffinity:
   enabled: false
   topologyKey: kubernetes.io/hostname

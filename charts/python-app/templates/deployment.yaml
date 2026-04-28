@@ -66,10 +66,7 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.affinity }}
-      affinity:
-        {{- toYaml .Values.affinity | nindent 8 }}
-      {{- else if .Values.podAntiAffinity.enabled }}
+      {{- if .Values.podAntiAffinity.enabled }}
       affinity:
         podAntiAffinity:
           {{- if eq .Values.podAntiAffinity.podAntiAffinityType "required" }}

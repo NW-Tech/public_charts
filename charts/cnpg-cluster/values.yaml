@@ -488,21 +488,8 @@ poolers: []
   #         # -- Whether to enable the PodMonitor
   #       enabled: true
   #   # -- Custom PgBouncer deployment template.
-  #   # Use to override image, specify resources, etc.
-  #   # Pod anti-affinity is configured here via the standard K8s affinity API.
-  #   # The label `cnpg.io/poolerName` is set by the CNPG operator and equals
-  #   # `<release-fullname>-pooler-<name>`.
-  #   template:
-  #     spec:
-  #       affinity:
-  #         podAntiAffinity:
-  #           preferredDuringSchedulingIgnoredDuringExecution:
-  #             - weight: 100
-  #               podAffinityTerm:
-  #                 topologyKey: kubernetes.io/hostname
-  #                 labelSelector:
-  #                   matchLabels:
-  #                     cnpg.io/poolerName: <release-fullname>-pooler-rw
+  #   # Use to override image, specify resources, etc. Takes precedence over podAntiAffinity below.
+  #   template: {}
   #   # -- Custom PgBouncer service template.
   #   # Use to override service type, ports, etc.
   #   serviceTemplate: {}
@@ -511,6 +498,12 @@ poolers: []
   #   podDisruptionBudget:
   #     enabled: false
   #     minAvailable: 1
+  #   # -- Quick-toggle pod anti-affinity using the cnpg.io/poolerName label.
+  #   # Ignored if `template` is set (free-form override wins).
+  #   podAntiAffinity:
+  #     enabled: false
+  #     topologyKey: kubernetes.io/hostname
+  #     podAntiAffinityType: preferred  # preferred | required
   # -
   #   # -- Pooler name
   #   name: ro
@@ -531,21 +524,8 @@ poolers: []
   #         # -- Whether to enable the PodMonitor
   #       enabled: true
   #   # -- Custom PgBouncer deployment template.
-  #   # Use to override image, specify resources, etc.
-  #   # Pod anti-affinity is configured here via the standard K8s affinity API.
-  #   # The label `cnpg.io/poolerName` is set by the CNPG operator and equals
-  #   # `<release-fullname>-pooler-<name>`.
-  #   template:
-  #     spec:
-  #       affinity:
-  #         podAntiAffinity:
-  #           preferredDuringSchedulingIgnoredDuringExecution:
-  #             - weight: 100
-  #               podAffinityTerm:
-  #                 topologyKey: kubernetes.io/hostname
-  #                 labelSelector:
-  #                   matchLabels:
-  #                     cnpg.io/poolerName: <release-fullname>-pooler-ro
+  #   # Use to override image, specify resources, etc. Takes precedence over podAntiAffinity below.
+  #   template: {}
   #   # -- Custom PgBouncer service template.
   #   # Use to override service type, ports, etc.
   #   serviceTemplate: {}
@@ -554,3 +534,9 @@ poolers: []
   #   podDisruptionBudget:
   #     enabled: false
   #     minAvailable: 1
+  #   # -- Quick-toggle pod anti-affinity using the cnpg.io/poolerName label.
+  #   # Ignored if `template` is set (free-form override wins).
+  #   podAntiAffinity:
+  #     enabled: false
+  #     topologyKey: kubernetes.io/hostname
+  #     podAntiAffinityType: preferred  # preferred | required

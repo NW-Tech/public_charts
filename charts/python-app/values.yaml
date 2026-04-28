@@ -59,6 +59,11 @@ cluster:
         annotations:
           iam.gke.io/gcp-service-account: # from_cd
 
+    affinity:
+      enablePodAntiAffinity: false
+      topologyKey: kubernetes.io/hostname
+      podAntiAffinityType: preferred
+
     roles:
       - name: warehouse_replication
         ensure: present
@@ -253,17 +258,13 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
-# -- Example: spread replicas across nodes with soft pod anti-affinity.
-# affinity:
-#   podAntiAffinity:
-#     preferredDuringSchedulingIgnoredDuringExecution:
-#       - weight: 100
-#         podAffinityTerm:
-#           topologyKey: kubernetes.io/hostname
-#           labelSelector:
-#             matchLabels:
-#               app.kubernetes.io/name: python-app
-#               app.kubernetes.io/instance: <release-name>
+
+# -- Quick-toggle pod anti-affinity using the chart's selector labels.
+# Ignored if `affinity` above is set (free-form override takes precedence).
+podAntiAffinity:
+  enabled: false
+  topologyKey: kubernetes.io/hostname
+  podAntiAffinityType: preferred  # preferred | required
 
 redis:
   enabled: false
@@ -296,6 +297,13 @@ celeryWorker:
     #       podDisruptionBudget:
     #         enabled: true
     #         maxUnavailable: 1  # or minAvailable: 1 (mutually exclusive)
+    # To enable pod anti-affinity on a worker, use the podAntiAffinity toggle:
+    #   workers:
+    #     celery-app-worker:
+    #       podAntiAffinity:
+    #         enabled: true
+    #         # topologyKey: kubernetes.io/hostname
+    #         # podAntiAffinityType: preferred  # preferred | required
   cluster:
     enabled: true
     cluster:

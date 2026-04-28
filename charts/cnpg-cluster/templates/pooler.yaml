@@ -42,30 +42,9 @@ spec:
     {{ end }}
   {{- end }}
   {{- end }}
-  {{- $pa := .podAntiAffinity | default dict }}
-  {{- if .template }}
+  {{- with .template }}
   template:
-    {{- .template | toYaml | nindent 4 }}
-  {{- else if $pa.enabled }}
-  template:
-    spec:
-      affinity:
-        podAntiAffinity:
-          {{- if eq ($pa.podAntiAffinityType | default "preferred") "required" }}
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - topologyKey: {{ $pa.topologyKey | default "kubernetes.io/hostname" }}
-              labelSelector:
-                matchLabels:
-                  cnpg.io/poolerName: {{ include "cluster.fullname" $ }}-pooler-{{ .name }}
-          {{- else }}
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                topologyKey: {{ $pa.topologyKey | default "kubernetes.io/hostname" }}
-                labelSelector:
-                  matchLabels:
-                    cnpg.io/poolerName: {{ include "cluster.fullname" $ }}-pooler-{{ .name }}
-          {{- end }}
+    {{- . | toYaml | nindent 4 }}
   {{- end }}
   {{- with .serviceTemplate }}
   serviceTemplate:

@@ -247,10 +247,7 @@ cluster:
   # -- Affinity/Anti-affinity rules for Pods.
   # See: https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-AffinityConfiguration
   affinity:
-    enablePodAntiAffinity: true
-    topologyKey: kubernetes.io/hostname
-    # podAntiAffinityType: required | preferred (default: preferred)
-    podAntiAffinityType: preferred
+    topologyKey: topology.kubernetes.io/zone
 
   # -- The configuration for the CA and related certificates.
   # See: https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-CertificatesConfiguration
@@ -488,7 +485,7 @@ poolers: []
   #         # -- Whether to enable the PodMonitor
   #       enabled: true
   #   # -- Custom PgBouncer deployment template.
-  #   # Use to override image, specify resources, etc. Takes precedence over podAntiAffinity below.
+  #   # Use to override image, specify resources, etc.
   #   template: {}
   #   # -- Custom PgBouncer service template.
   #   # Use to override service type, ports, etc.
@@ -498,12 +495,6 @@ poolers: []
   #   podDisruptionBudget:
   #     enabled: false
   #     minAvailable: 1
-  #   # -- Quick-toggle pod anti-affinity using the cnpg.io/poolerName label.
-  #   # Ignored if `template` is set (free-form override wins).
-  #   podAntiAffinity:
-  #     enabled: false
-  #     topologyKey: kubernetes.io/hostname
-  #     podAntiAffinityType: preferred  # preferred | required
   # -
   #   # -- Pooler name
   #   name: ro
@@ -524,7 +515,7 @@ poolers: []
   #         # -- Whether to enable the PodMonitor
   #       enabled: true
   #   # -- Custom PgBouncer deployment template.
-  #   # Use to override image, specify resources, etc. Takes precedence over podAntiAffinity below.
+  #   # Use to override image, specify resources, etc.
   #   template: {}
   #   # -- Custom PgBouncer service template.
   #   # Use to override service type, ports, etc.
@@ -534,9 +525,3 @@ poolers: []
   #   podDisruptionBudget:
   #     enabled: false
   #     minAvailable: 1
-  #   # -- Quick-toggle pod anti-affinity using the cnpg.io/poolerName label.
-  #   # Ignored if `template` is set (free-form override wins).
-  #   podAntiAffinity:
-  #     enabled: false
-  #     topologyKey: kubernetes.io/hostname
-  #     podAntiAffinityType: preferred  # preferred | required

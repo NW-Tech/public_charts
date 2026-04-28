@@ -8,8 +8,6 @@ spec:
     name: {{ .Release.Name }}-cluster
   dbname: {{ .Values.cluster.cluster.initdb.database }}
   name: {{ include "app.fullname" . }}-publication
-  parameters:
-    publish: "{{ join ", " (.Values.cluster.publication.operations | default (list "insert" "update" "delete")) }}"
   target:
     {{- if and .Values.cluster.publication.allTables (eq .Values.cluster.publication.allTables true) }}
     allTables: true

@@ -12,11 +12,6 @@ cluster:
 
   publication:
     enabled: false
-    # Operations to publish. Defaults to insert, update, delete if not provided.
-    operations:
-      - insert
-      - update
-      - truncate
 
   cluster:
     instances: 2
@@ -58,11 +53,6 @@ cluster:
       metadata:
         annotations:
           iam.gke.io/gcp-service-account: # from_cd
-
-    affinity:
-      enablePodAntiAffinity: false
-      topologyKey: kubernetes.io/hostname
-      podAntiAffinityType: preferred
 
     roles:
       - name: warehouse_replication
@@ -246,10 +236,6 @@ autoscaling:
   targetCPUUtilizationPercentage: 90
   targetMemoryUtilizationPercentage: 90
 
-nodeSelector: {}
-
-tolerations: []
-
 podDisruptionBudget:
   enabled: false
   # Only one of maxUnavailable or minAvailable should be set
@@ -257,11 +243,11 @@ podDisruptionBudget:
   # maxUnavailable: 1
   # minAvailable: 1
 
-# -- Pod anti-affinity using the chart's selector labels.
-podAntiAffinity:
-  enabled: false
-  topologyKey: kubernetes.io/hostname
-  podAntiAffinityType: preferred  # preferred | required
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
 
 redis:
   enabled: false
@@ -283,23 +269,6 @@ celeryWorker:
   enabled: false
   workers:
     basePath: # to_set
-    #   workers:
-    #     celery-app-worker:
-    #       enabled: true
-    #       type: worker
-    #       queues:
-    #         - celery
-    # To enable PodDisruptionBudget on a worker, add podDisruptionBudget
-    # to the worker definition (only supported for type: worker, not beat):
-    #       podDisruptionBudget:
-    #         enabled: true
-    #         maxUnavailable: 1  # or minAvailable: 1 (mutually exclusive)
-    # To enable pod anti-affinity on a worker, use the podAntiAffinity toggle:
-    #       podAntiAffinity:
-    #         enabled: true
-    #         # topologyKey: kubernetes.io/hostname
-    #         # podAntiAffinityType: preferred  # preferred | required
-    
   cluster:
     enabled: true
     cluster:

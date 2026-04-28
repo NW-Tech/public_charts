@@ -66,24 +66,9 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.podAntiAffinity.enabled }}
+      {{- with .Values.affinity }}
       affinity:
-        podAntiAffinity:
-          {{- if eq .Values.podAntiAffinity.podAntiAffinityType "required" }}
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
-              labelSelector:
-                matchLabels:
-                  {{- include "app.selectorLabels" . | nindent 18 }}
-          {{- else }}
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                topologyKey: {{ .Values.podAntiAffinity.topologyKey }}
-                labelSelector:
-                  matchLabels:
-                    {{- include "app.selectorLabels" . | nindent 20 }}
-          {{- end }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.tolerations }}
       tolerations:

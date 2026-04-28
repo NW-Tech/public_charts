@@ -153,11 +153,6 @@ workers:
         # Accepts an integer or a percentage string (e.g. "50%")
         # maxUnavailable: 1
         # minAvailable: 1
-      # Pod anti-affinity matching this worker's selector labels.
-      podAntiAffinity:
-        enabled: false
-        topologyKey: kubernetes.io/hostname
-        podAntiAffinityType: preferred  # preferred | required
 
     celery-app-scheduler:
       enabled: true

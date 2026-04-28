@@ -253,6 +253,17 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+# -- Example: spread replicas across nodes with soft pod anti-affinity.
+# affinity:
+#   podAntiAffinity:
+#     preferredDuringSchedulingIgnoredDuringExecution:
+#       - weight: 100
+#         podAffinityTerm:
+#           topologyKey: kubernetes.io/hostname
+#           labelSelector:
+#             matchLabels:
+#               app.kubernetes.io/name: python-app
+#               app.kubernetes.io/instance: <release-name>
 
 redis:
   enabled: false

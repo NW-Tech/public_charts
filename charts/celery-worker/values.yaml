@@ -153,6 +153,19 @@ workers:
         # Accepts an integer or a percentage string (e.g. "50%")
         # maxUnavailable: 1
         # minAvailable: 1
+      # -- Pod anti-affinity to spread replicas across nodes (soft).
+      # Selects on `celery-worker.io/worker` so only pods of THIS worker repel each other.
+      # affinity:
+      #   podAntiAffinity:
+      #     preferredDuringSchedulingIgnoredDuringExecution:
+      #       - weight: 100
+      #         podAffinityTerm:
+      #           topologyKey: kubernetes.io/hostname
+      #           labelSelector:
+      #             matchLabels:
+      #               app.kubernetes.io/name: celery-worker
+      #               app.kubernetes.io/instance: <release-name>
+      #               celery-worker.io/worker: celery-app-worker
 
     celery-app-scheduler:
       enabled: true

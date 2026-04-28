@@ -247,7 +247,10 @@ cluster:
   # -- Affinity/Anti-affinity rules for Pods.
   # See: https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-AffinityConfiguration
   affinity:
-    topologyKey: topology.kubernetes.io/zone
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
+    # podAntiAffinityType: required | preferred (default: preferred)
+    podAntiAffinityType: preferred
 
   # -- The configuration for the CA and related certificates.
   # See: https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-CertificatesConfiguration
@@ -486,7 +489,20 @@ poolers: []
   #       enabled: true
   #   # -- Custom PgBouncer deployment template.
   #   # Use to override image, specify resources, etc.
-  #   template: {}
+  #   # Pod anti-affinity is configured here via the standard K8s affinity API.
+  #   # The label `cnpg.io/poolerName` is set by the CNPG operator and equals
+  #   # `<release-fullname>-pooler-<name>`.
+  #   template:
+  #     spec:
+  #       affinity:
+  #         podAntiAffinity:
+  #           preferredDuringSchedulingIgnoredDuringExecution:
+  #             - weight: 100
+  #               podAffinityTerm:
+  #                 topologyKey: kubernetes.io/hostname
+  #                 labelSelector:
+  #                   matchLabels:
+  #                     cnpg.io/poolerName: <release-fullname>-pooler-rw
   #   # -- Custom PgBouncer service template.
   #   # Use to override service type, ports, etc.
   #   serviceTemplate: {}
@@ -516,7 +532,20 @@ poolers: []
   #       enabled: true
   #   # -- Custom PgBouncer deployment template.
   #   # Use to override image, specify resources, etc.
-  #   template: {}
+  #   # Pod anti-affinity is configured here via the standard K8s affinity API.
+  #   # The label `cnpg.io/poolerName` is set by the CNPG operator and equals
+  #   # `<release-fullname>-pooler-<name>`.
+  #   template:
+  #     spec:
+  #       affinity:
+  #         podAntiAffinity:
+  #           preferredDuringSchedulingIgnoredDuringExecution:
+  #             - weight: 100
+  #               podAffinityTerm:
+  #                 topologyKey: kubernetes.io/hostname
+  #                 labelSelector:
+  #                   matchLabels:
+  #                     cnpg.io/poolerName: <release-fullname>-pooler-ro
   #   # -- Custom PgBouncer service template.
   #   # Use to override service type, ports, etc.
   #   serviceTemplate: {}

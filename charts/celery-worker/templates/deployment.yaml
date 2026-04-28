@@ -70,9 +70,27 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with $worker.affinity }}
+      {{- $pa := $worker.podAntiAffinity | default dict }}
+      {{- if $pa.enabled }}
       affinity:
-        {{- toYaml . | nindent 8 }}
+        podAntiAffinity:
+          {{- if eq ($pa.podAntiAffinityType | default "preferred") "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: {{ $pa.topologyKey | default "kubernetes.io/hostname" }}
+              labelSelector:
+                matchLabels:
+                  {{- include "celery-worker.selectorLabels" $ | nindent 18 }}
+                  celery-worker.io/worker: {{ $worker_name }}
+          {{- else }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: {{ $pa.topologyKey | default "kubernetes.io/hostname" }}
+                labelSelector:
+                  matchLabels:
+                    {{- include "celery-worker.selectorLabels" $ | nindent 20 }}
+                    celery-worker.io/worker: {{ $worker_name }}
+          {{- end }}
       {{- end }}
       {{- with $.Values.tolerations }}
       tolerations:

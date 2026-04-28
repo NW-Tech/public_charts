@@ -4,9 +4,9 @@ dependencies:
   version: 0.3.5
 - name: celery-worker
   repository: https://nw-tech.github.io/public_charts/
-  version: 0.1.25
+  version: 0.1.24
 - name: redis
   repository: https://charts.bitnami.com/bitnami
   version: 24.1.0
-digest: sha256:e272ceedf1e86a10e7cc29083c44696272d065941d17e23ea7f7d518e250adda
-generated: "2026-04-09T18:13:51.089309+02:00"
+digest: sha256:79436b1365cd80ffe173a6d2ac99361e3abcf050984cd02c16246eb827c25a56
+generated: "2026-04-09T17:31:29.228623+02:00"

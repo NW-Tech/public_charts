@@ -707,6 +707,26 @@ entries:
     version: 0.3.2
   cluster:
   - apiVersion: v2
+    created: "2026-04-29T08:01:51.564858885Z"
+    description: Deploys and manages a CloudNativePG cluster and its associated resources.
+    digest: 46477a15fb9f23b83f780b32276f66bccfe721bcb9ae2c9baeac8dea0da2d1bd
+    home: https://cloudnative-pg.io
+    icon: https://raw.githubusercontent.com/cloudnative-pg/artwork/main/cloudnativepg-logo.svg
+    keywords:
+    - postgresql
+    - postgres
+    - database
+    maintainers:
+    - email: itay+cloudnativepg-charts+github.com@grudev.com
+      name: itay-grudev
+    name: cluster
+    sources:
+    - https://github.com/cloudnative-pg/charts
+    type: application
+    urls:
+    - cluster-0.3.7.tgz
+    version: 0.3.7
+  - apiVersion: v2
     created: "2026-04-09T15:30:16.317419491Z"
     description: Deploys and manages a CloudNativePG cluster and its associated resources.
     digest: a6d442b8098f56381bbc26ce670a11558c227b97e2655a30b2f657c1300c7488
@@ -2099,4 +2119,4 @@ entries:
     urls:
     - python-app-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-24T13:54:18.775037978Z"
+generated: "2026-04-29T08:01:51.752557338Z"

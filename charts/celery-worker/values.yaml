@@ -42,6 +42,11 @@ cluster:
         annotations:
           iam.gke.io/gcp-service-account: # from_cd
 
+    affinity:
+      enablePodAntiAffinity: false
+      topologyKey: kubernetes.io/hostname
+      podAntiAffinityType: preferred
+
     roles:
       - name: celery_backend_user
         ensure: present

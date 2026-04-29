@@ -4,9 +4,9 @@ dependencies:
   version: 15.0.7
 - name: cluster
   repository: https://nw-tech.github.io/public_charts/
-  version: 0.3.3
+  version: 0.3.7
 - name: celery-flower
   repository: https://nw-tech.github.io/public_charts/
   version: 0.1.5
-digest: sha256:827ef4795bd437b31e0c9f9efa9a78d453f5ad1e420b59b7e5a60e745a62f901
-generated: "2025-10-01T19:55:31.985549+02:00"
+digest: sha256:6f99846c6126a6d7cb50b689b70e3423b9420dbbf27d8eca625aa2938949928e
+generated: "2026-04-29T10:20:54.607958+02:00"

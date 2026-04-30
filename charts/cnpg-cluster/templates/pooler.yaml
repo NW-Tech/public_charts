@@ -49,6 +49,7 @@ spec:
   {{- else if $pa.enabled }}
   template:
     spec:
+      containers: []
       affinity:
         podAntiAffinity:
           {{- if eq ($pa.podAntiAffinityType | default "preferred") "required" }}

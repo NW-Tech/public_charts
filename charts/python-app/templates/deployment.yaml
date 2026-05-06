@@ -66,8 +66,13 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.podAntiAffinity.enabled }}
+      {{- if or .Values.nodeAffinity .Values.podAntiAffinity.enabled }}
       affinity:
+        {{- with .Values.nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- if .Values.podAntiAffinity.enabled }}
         podAntiAffinity:
           {{- if eq .Values.podAntiAffinity.podAntiAffinityType "required" }}
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -84,6 +89,7 @@ spec:
                   matchLabels:
                     {{- include "app.selectorLabels" . | nindent 20 }}
           {{- end }}
+        {{- end }}
       {{- end }}
       {{- with .Values.tolerations }}
       tolerations:

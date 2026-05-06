@@ -257,6 +257,17 @@ podDisruptionBudget:
   # maxUnavailable: 1
   # minAvailable: 1
 
+# -- Node affinity. Raw Kubernetes nodeAffinity spec, passed through as-is.
+# Example — pin to a GKE nodepool:
+#   nodeAffinity:
+#     requiredDuringSchedulingIgnoredDuringExecution:
+#       nodeSelectorTerms:
+#         - matchExpressions:
+#             - key: cloud.google.com/gke-nodepool
+#               operator: In
+#               values: [my-pool]
+nodeAffinity: {}
+
 # -- Pod anti-affinity using the chart's selector labels.
 podAntiAffinity:
   enabled: false

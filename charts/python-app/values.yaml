@@ -257,11 +257,16 @@ podDisruptionBudget:
   # maxUnavailable: 1
   # minAvailable: 1
 
-# -- Pod affinity using the chart's selector labels.
-podAffinity:
-  enabled: false
-  topologyKey: kubernetes.io/hostname
-  podAffinityType: preferred  # preferred | required
+# -- Node affinity. Raw Kubernetes nodeAffinity spec, passed through as-is.
+# Example — pin to a GKE nodepool:
+#   nodeAffinity:
+#     requiredDuringSchedulingIgnoredDuringExecution:
+#       nodeSelectorTerms:
+#         - matchExpressions:
+#             - key: cloud.google.com/gke-nodepool
+#               operator: In
+#               values: [my-pool]
+nodeAffinity: {}
 
 # -- Pod anti-affinity using the chart's selector labels.
 podAntiAffinity:

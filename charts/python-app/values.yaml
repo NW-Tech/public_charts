@@ -193,6 +193,12 @@ secrets:
 configMap:
   enabled: false
 
+# Extra volumes and volume mounts for the app container.
+# Values are templated (tpl) so you can reference helpers like
+# {{ include "app.fullname" . }} from a parent chart.
+extraVolumes: []
+extraVolumeMounts: []
+
 podAnnotations: {}
 
 podSecurityContext:

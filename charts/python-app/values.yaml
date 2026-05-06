@@ -257,6 +257,12 @@ podDisruptionBudget:
   # maxUnavailable: 1
   # minAvailable: 1
 
+# -- Pod affinity using the chart's selector labels.
+podAffinity:
+  enabled: false
+  topologyKey: kubernetes.io/hostname
+  podAffinityType: preferred  # preferred | required
+
 # -- Pod anti-affinity using the chart's selector labels.
 podAntiAffinity:
   enabled: false

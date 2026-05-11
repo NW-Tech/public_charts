@@ -13,9 +13,14 @@ spec:
       {{- include "app.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
+      {{- if or .Values.podAnnotations .Values.fileSecrets.enabled }}
       annotations:
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.fileSecrets.enabled }}
+        checksum/file-secrets: {{ include (print $.Template.BasePath "/file-secret.yaml") . | sha256sum }}
+        {{- end }}
       {{- end }}
       labels:
         {{- include "app.selectorLabels" . | nindent 8 }}
@@ -52,6 +57,23 @@ spec:
                 name: {{ include "app.fullname" $ }}-{{ $secretName }}
             {{- end }}
             {{- end }}
+          {{- if .Values.fileSecrets.enabled }}
+          {{- $envItems := dict }}
+          {{- range $name, $spec := .Values.fileSecrets.data }}
+          {{- if $spec.env }}
+          {{- range $k, $v := $spec.env }}
+          {{- $_ := set $envItems $k $v }}
+          {{- end }}
+          {{- end }}
+          {{- end }}
+          {{- if gt (len $envItems) 0 }}
+          env:
+            {{- range $k, $v := $envItems }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
+          {{- end }}
+          {{- end }}
           {{- with .Values.ports }}
           ports:
             {{- toYaml . | nindent 12 }}
@@ -62,13 +84,25 @@ spec:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.extraVolumeMounts }}
+          {{- if and .Values.fileSecrets.enabled .Values.fileSecrets.data }}
           volumeMounts:
-            {{- tpl (toYaml .) $ | nindent 12 }}
+            {{- range $name, $spec := .Values.fileSecrets.data }}
+            - name: file-secret-{{ $name }}
+              mountPath: {{ $spec.mountPath }}
+              readOnly: true
+            {{- end }}
           {{- end }}
-      {{- with .Values.extraVolumes }}
+      {{- if and .Values.fileSecrets.enabled .Values.fileSecrets.data }}
       volumes:
-        {{- tpl (toYaml .) $ | nindent 8 }}
+        {{- range $name, $spec := .Values.fileSecrets.data }}
+        - name: file-secret-{{ $name }}
+          secret:
+            secretName: {{ include "app.fullname" $ }}-{{ $name }}
+            defaultMode: {{ $spec.defaultMode | default 0400 }}
+            items:
+              - key: {{ $spec.filename }}
+                path: {{ $spec.filename }}
+        {{- end }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

@@ -193,6 +193,22 @@ secrets:
 configMap:
   enabled: false
 
+# File-based secrets — bundles a Kubernetes Secret + volume mount + optional
+# env vars into one entry. Recommended for credentials the app reads from
+# disk (P12 certs, GCP service-account JSON, kubeconfigs, etc.).
+#
+# Each entry under `data` produces:
+#   - one Secret (named <fullname>-<entry>), holding a single file
+#   - one volume + volumeMount projecting that file at `mountPath/filename`
+#   - any env vars listed under the entry's `env:` block
+#
+# `contentsRaw` is the already-base64-encoded file content
+#
+# A checksum/file-secrets pod annotation is emitted so pods roll on change.
+fileSecrets:
+  enabled: false
+  data: {}
+
 podAnnotations: {}
 
 podSecurityContext:

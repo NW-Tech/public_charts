@@ -19,7 +19,7 @@ cluster:
       - truncate
 
   cluster:
-    instances: 2
+    instances: 3
     # https://cloudnative-pg.io/docs/1.27/replication/#logical-decoding-slot-synchronization
     imageName: "ghcr.io/cloudnative-pg/postgresql:17-system-trixie"
     replicationSlots:

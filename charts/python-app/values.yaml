@@ -12,6 +12,8 @@ cluster:
 
   publication:
     enabled: false
+    # Schema for the published tables. Defaults to public if not provided.
+    schema: public
     # Operations to publish. Defaults to insert, update, delete if not provided.
     operations:
       - insert

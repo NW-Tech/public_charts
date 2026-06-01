@@ -18,7 +18,7 @@ spec:
       {{- range .Values.cluster.publication.tables }}
       - table:
           name: {{ . }}
-          schema: public
+          schema: {{ $.Values.cluster.publication.schema | default "public" }}
       {{- end }}
     {{- end }}
 {{- end }}

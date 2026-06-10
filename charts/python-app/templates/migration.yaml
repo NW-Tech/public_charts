@@ -38,31 +38,13 @@ spec:
                 sleep 2
               done
               echo "Database ready"
-          env:
-            # Database configuration (needed for pg_isready check)
-            - name: DB_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "app.fullname" . }}-configmap
-                  key: DB_HOST
-            - name: DB_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "app.fullname" . }}-configmap
-                  key: DB_PORT
-            - name: DB_USER
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "app.fullname" . }}-configmap
-                  key: DB_USER
-            # Database password (needed for connection)
+          envFrom:
+            - configMapRef:
+                name: {{ include "app.fullname" . }}-configmap
             {{- if .Values.secrets.enabled }}
             {{- if hasKey .Values.secrets.data "postgres-credentials" }}
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "app.fullname" . }}-postgres-credentials
-                  key: DB_PASSWORD
+            - secretRef:
+                name: {{ include "app.fullname" . }}-postgres-credentials
             {{- end }}
             {{- end }}
           resources:
@@ -76,37 +58,6 @@ spec:
             # Force Python to be unbuffered for immediate log output
             - name: PYTHONUNBUFFERED
               value: "1"
-            # Database configuration (needed for migrations)
-            - name: DB_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "app.fullname" . }}-configmap
-                  key: DB_HOST
-            - name: DB_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "app.fullname" . }}-configmap
-                  key: DB_PORT
-            - name: DB_USER
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "app.fullname" . }}-configmap
-                  key: DB_USER
-            - name: DB_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ include "app.fullname" . }}-configmap
-                  key: DB_NAME
-            # Database password (needed for migrations)
-            {{- if .Values.secrets.enabled }}
-            {{- if hasKey .Values.secrets.data "postgres-credentials" }}
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "app.fullname" . }}-postgres-credentials
-                  key: DB_PASSWORD
-            {{- end }}
-            {{- end }}
             {{- /* env: append fileSecrets[*].env entries (deduped, last write wins) */ -}}
             {{- if .Values.fileSecrets.enabled }}
             {{- $envItems := dict }}
@@ -120,6 +71,15 @@ spec:
             {{- range $k, $v := $envItems }}
             - name: {{ $k }}
               value: {{ $v | quote }}
+            {{- end }}
+            {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "app.fullname" . }}-configmap
+            {{- if .Values.secrets.enabled }}
+            {{- if hasKey .Values.secrets.data "postgres-credentials" }}
+            - secretRef:
+                name: {{ include "app.fullname" . }}-postgres-credentials
             {{- end }}
             {{- end }}
           resources:

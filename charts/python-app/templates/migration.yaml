@@ -58,21 +58,6 @@ spec:
             # Force Python to be unbuffered for immediate log output
             - name: PYTHONUNBUFFERED
               value: "1"
-            {{- /* env: append fileSecrets[*].env entries (deduped, last write wins) */ -}}
-            {{- if .Values.fileSecrets.enabled }}
-            {{- $envItems := dict }}
-            {{- range $name, $spec := .Values.fileSecrets.data }}
-            {{- if $spec.env }}
-            {{- range $k, $v := $spec.env }}
-            {{- $_ := set $envItems $k $v }}
-            {{- end }}
-            {{- end }}
-            {{- end }}
-            {{- range $k, $v := $envItems }}
-            - name: {{ $k }}
-              value: {{ $v | quote }}
-            {{- end }}
-            {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "app.fullname" . }}-configmap
@@ -84,26 +69,6 @@ spec:
             {{- end }}
           resources:
             {{- toYaml .Values.migrations.resources | nindent 12 }}
-          {{- if and .Values.fileSecrets.enabled .Values.fileSecrets.data }}
-          volumeMounts:
-            {{- range $name, $spec := .Values.fileSecrets.data }}
-            - name: file-secret-{{ $name }}
-              mountPath: {{ $spec.mountPath }}
-              readOnly: true
-            {{- end }}
-          {{- end }}
-      {{- if and .Values.fileSecrets.enabled .Values.fileSecrets.data }}
-      volumes:
-        {{- range $name, $spec := .Values.fileSecrets.data }}
-        - name: file-secret-{{ $name }}
-          secret:
-            secretName: {{ include "app.fullname" $ }}-{{ $name }}
-            defaultMode: {{ $spec.defaultMode | default 0400 }}
-            items:
-              - key: {{ $spec.filename }}
-                path: {{ $spec.filename }}
-        {{- end }}
-      {{- end }}
       {{- with .Values.migrations.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

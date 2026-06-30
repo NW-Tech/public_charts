@@ -64,6 +64,30 @@ entries:
   celery-worker:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2026-06-30T16:21:33.533693507Z"
+    dependencies:
+    - condition: rabbitmq.enabled
+      name: rabbitmq
+      repository: https://charts.bitnami.com/bitnami
+      version: 15.0.7
+    - condition: cluster.enabled
+      name: cluster
+      repository: https://nw-tech.github.io/public_charts/
+      version: 0.3.8
+    - alias: celeryFlower
+      condition: celeryFlower.enabled
+      name: celery-flower
+      repository: https://nw-tech.github.io/public_charts/
+      version: 0.1.5
+    description: A Helm chart for Kubernetes
+    digest: 1119c89d552f99b28cab9a026271f24cab57da7d96dc780358561751e094fe59
+    name: celery-worker
+    type: application
+    urls:
+    - celery-worker-0.1.29.tgz
+    version: 0.1.29
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2026-04-30T09:50:27.427605341Z"
     dependencies:
     - condition: rabbitmq.enabled
@@ -1108,6 +1132,30 @@ entries:
     - https://github.com/NW-Tech/public_charts/releases/download/nginx-react-0.1.0/nginx-react-0.1.0.tgz
     version: 0.1.0
   python-app:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-06-30T16:21:33.777451289Z"
+    dependencies:
+    - condition: cluster.enabled
+      name: cluster
+      repository: https://nw-tech.github.io/public_charts/
+      version: 0.3.8
+    - alias: celeryWorker
+      condition: celeryWorker.enabled
+      name: celery-worker
+      repository: https://nw-tech.github.io/public_charts/
+      version: 0.1.28
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 24.1.0
+    description: A Helm chart for Kubernetes
+    digest: c691989cf25237228cfedff8ceb66349b956dd7c19e607720b0d2b221d7776a2
+    name: python-app
+    type: application
+    urls:
+    - python-app-0.1.64.tgz
+    version: 0.1.64
   - apiVersion: v2
     appVersion: 1.0.0
     created: "2026-06-22T09:16:15.73988947Z"
@@ -2451,4 +2499,4 @@ entries:
     urls:
     - python-app-0.1.0.tgz
     version: 0.1.0
-generated: "2026-06-22T09:16:15.740347436Z"
+generated: "2026-06-30T16:21:33.777774895Z"

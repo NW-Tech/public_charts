@@ -19,7 +19,7 @@ spec:
       - {{ .Release.Namespace }}
 
   podMetricsEndpoints:
-    {{- range .Values.podMonitor.ports | default (list .Values.podMonitor.port) }}
+    {{- range .Values.podMonitor.ports }}
     - port: {{ . }}
       path: {{ $.Values.podMonitor.path }}
       interval: {{ $.Values.podMonitor.interval }}

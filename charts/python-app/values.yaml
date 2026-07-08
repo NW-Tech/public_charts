@@ -375,6 +375,10 @@ celeryWorker:
 podMonitor:
   enabled: false
   port: http
+  # List of container port names to scrape, one podMetricsEndpoint per port.
+  # Use this when the app exposes /metrics on several ports (e.g. one per
+  # subprocess). Takes precedence over `port`.
+  ports: []
   path: /metrics
   interval: 5s
   scrapeTimeout: 5s

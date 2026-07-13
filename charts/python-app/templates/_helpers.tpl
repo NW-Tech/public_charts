@@ -51,6 +51,29 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+Selector labels + the app component label (gated on .Values.workers). Used by
+the app pod template and the Service selector so the Service stops matching
+worker pods once workers exist. NOT for the app Deployment's spec.selector —
+that is immutable.
+*/}}
+{{- define "app.componentSelectorLabels" -}}
+{{ include "app.selectorLabels" . }}
+{{- if .Values.workers }}
+app.kubernetes.io/component: app
+{{- end }}
+{{- end }}
+
+{{/*
+Selector labels for a worker Deployment. Call with `(dict "root" $ "worker" $w)`.
+Unique per worker, never matched by the Service.
+*/}}
+{{- define "app.workerSelectorLabels" -}}
+{{ include "app.selectorLabels" .root }}
+app.kubernetes.io/component: worker
+app.kubernetes.io/worker: {{ .worker.name }}
+{{- end }}
+
+{{/*
 Shared envFrom list items: the configMap, the celery-urls secret (when celery
 credentials are set), and one secretRef per .Values.secrets.data entry.
 */}}
@@ -120,6 +143,20 @@ Shared fileSecrets pod volumes list items.
       - key: {{ $spec.filename }}
         path: {{ $spec.filename }}
 {{- end }}
+{{- end }}
+
+{{/*
+Worker probe: the supplied probe, or a default httpGet /health on the http port.
+Call with `(dict "probe" <probe|nil>)`.
+*/}}
+{{- define "app.workerProbe" -}}
+{{- if .probe -}}
+{{- toYaml .probe -}}
+{{- else -}}
+httpGet:
+  path: /health
+  port: http
+{{- end -}}
 {{- end }}
 
 {{/*

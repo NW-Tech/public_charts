@@ -189,6 +189,28 @@ deployment:
   args:
     - "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"
 
+# Background workers
+# One Deployment per entry.
+# Re-use image and config (envFrom, serviceAccount, imagePullSecrets,
+# fileSecrets, security contexts) from the app.
+# No Service/Ingress/HPA.
+workers: []
+#  - name: ingest                       # REQUIRED; used in the name and labels
+#    command: ["python", "-m", "app.worker"]   # optional; omit to use image CMD
+#    args: []                           # optional
+#    env:                               # optional; e.g. the task selector
+#      WORKER_TASKS: ingest
+#    replicaCount: 1                    # optional; default 1
+#    strategy: Recreate                 # optional; default Recreate
+#    resources: {}                      # optional; default {}
+#    livenessProbe:                     # optional; default httpGet /health on the http port
+#      httpGet: { path: /health, port: http }
+#    readinessProbe:                    # optional; default httpGet /health on the http port
+#      httpGet: { path: /health, port: http }
+#    nodeSelector: {}
+#    tolerations: []
+#    podAnnotations: {}
+
 secrets:
   enabled: false
 

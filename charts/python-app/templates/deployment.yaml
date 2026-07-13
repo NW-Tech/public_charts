@@ -23,7 +23,7 @@ spec:
         {{- end }}
       {{- end }}
       labels:
-        {{- include "app.selectorLabels" . | nindent 8 }}
+        {{- include "app.componentSelectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -45,34 +45,9 @@ spec:
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
-            - configMapRef:
-                name: {{ include "app.fullname" . }}-configmap
-            {{- if and .Values.secrets.enabled (hasKey .Values.secrets.data "celery-credentials") (hasKey (index .Values.secrets.data "celery-credentials") "CELERY_BROKER_PASSWORD") (hasKey (index .Values.secrets.data "celery-credentials") "CELERY_BACKEND_PASSWORD") }}
-            - secretRef:
-                name: {{ include "app.fullname" . }}-celery-urls
-            {{- end }}
-            {{- if .Values.secrets.enabled }}
-            {{- range $secretName, $_ := .Values.secrets.data }}
-            - secretRef:
-                name: {{ include "app.fullname" $ }}-{{ $secretName }}
-            {{- end }}
-            {{- end }}
-          {{- if .Values.fileSecrets.enabled }}
-          {{- $envItems := dict }}
-          {{- range $name, $spec := .Values.fileSecrets.data }}
-          {{- if $spec.env }}
-          {{- range $k, $v := $spec.env }}
-          {{- $_ := set $envItems $k $v }}
-          {{- end }}
-          {{- end }}
-          {{- end }}
-          {{- if gt (len $envItems) 0 }}
-          env:
-            {{- range $k, $v := $envItems }}
-            - name: {{ $k }}
-              value: {{ $v | quote }}
-            {{- end }}
-          {{- end }}
+            {{- include "app.envFrom" . | nindent 12 }}
+          {{- with (include "app.env" (dict "root" . "extra" (dict)) | trim) }}
+          {{- . | nindent 10 }}
           {{- end }}
           {{- with .Values.ports }}
           ports:
@@ -86,23 +61,11 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- if and .Values.fileSecrets.enabled .Values.fileSecrets.data }}
           volumeMounts:
-            {{- range $name, $spec := .Values.fileSecrets.data }}
-            - name: file-secret-{{ $name }}
-              mountPath: {{ $spec.mountPath }}
-              readOnly: true
-            {{- end }}
+            {{- include "app.fileSecretsVolumeMounts" . | trim | nindent 12 }}
           {{- end }}
       {{- if and .Values.fileSecrets.enabled .Values.fileSecrets.data }}
       volumes:
-        {{- range $name, $spec := .Values.fileSecrets.data }}
-        - name: file-secret-{{ $name }}
-          secret:
-            secretName: {{ include "app.fullname" $ }}-{{ $name }}
-            defaultMode: {{ $spec.defaultMode | default 0400 }}
-            items:
-              - key: {{ $spec.filename }}
-                path: {{ $spec.filename }}
-        {{- end }}
+        {{- include "app.fileSecretsVolumes" . | trim | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

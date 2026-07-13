@@ -51,6 +51,78 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+Shared envFrom list items: the configMap, the celery-urls secret (when celery
+credentials are set), and one secretRef per .Values.secrets.data entry.
+*/}}
+{{- define "app.envFrom" -}}
+- configMapRef:
+    name: {{ include "app.fullname" . }}-configmap
+{{- if and .Values.secrets.enabled (hasKey .Values.secrets.data "celery-credentials") (hasKey (index .Values.secrets.data "celery-credentials") "CELERY_BROKER_PASSWORD") (hasKey (index .Values.secrets.data "celery-credentials") "CELERY_BACKEND_PASSWORD") }}
+- secretRef:
+    name: {{ include "app.fullname" . }}-celery-urls
+{{- end }}
+{{- if .Values.secrets.enabled }}
+{{- range $secretName, $_ := .Values.secrets.data }}
+- secretRef:
+    name: {{ include "app.fullname" $ }}-{{ $secretName }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Shared container `env:` block. Call with `(dict "root" $ "extra" <dict>)`. Merges
+the fileSecrets-derived env with `extra` (which wins on conflict); renders nothing
+when empty.
+*/}}
+{{- define "app.env" -}}
+{{- $root := .root -}}
+{{- $items := dict -}}
+{{- if $root.Values.fileSecrets.enabled -}}
+{{- range $name, $spec := $root.Values.fileSecrets.data -}}
+{{- range $k, $v := ($spec.env | default dict) -}}
+{{- $_ := set $items $k $v -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- range $k, $v := (.extra | default dict) -}}
+{{- $_ := set $items $k $v -}}
+{{- end -}}
+{{- if gt (len $items) 0 }}
+env:
+{{- range $k, $v := $items }}
+  - name: {{ $k }}
+    value: {{ $v | quote }}
+{{- end }}
+{{- end -}}
+{{- end }}
+
+{{/*
+Shared fileSecrets volumeMounts list items.
+*/}}
+{{- define "app.fileSecretsVolumeMounts" -}}
+{{- range $name, $spec := .Values.fileSecrets.data }}
+- name: file-secret-{{ $name }}
+  mountPath: {{ $spec.mountPath }}
+  readOnly: true
+{{- end }}
+{{- end }}
+
+{{/*
+Shared fileSecrets pod volumes list items.
+*/}}
+{{- define "app.fileSecretsVolumes" -}}
+{{- range $name, $spec := .Values.fileSecrets.data }}
+- name: file-secret-{{ $name }}
+  secret:
+    secretName: {{ include "app.fullname" $ }}-{{ $name }}
+    defaultMode: {{ $spec.defaultMode | default 0400 }}
+    items:
+      - key: {{ $spec.filename }}
+        path: {{ $spec.filename }}
+{{- end }}
+{{- end }}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "app.serviceAccountName" -}}

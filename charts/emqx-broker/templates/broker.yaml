@@ -36,6 +36,18 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.topologySpreadConstraints }}
+      ## more information about spreading pods across zones: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+      topologySpreadConstraints:
+        {{- $defaultSelector := dict "matchLabels" (include "emqx-broker.corePodSelectorLabels" . | fromYaml) }}
+        {{- range .Values.topologySpreadConstraints }}
+        {{- $constraint := deepCopy . }}
+        {{- if not $constraint.labelSelector }}
+        {{- $_ := set $constraint "labelSelector" $defaultSelector }}
+        {{- end }}
+        {{- toYaml (list $constraint) | nindent 8 }}
+        {{- end }}
+      {{- end }}
       {{- with .Values.podSecurityContext }}
       podSecurityContext:
         {{- toYaml . | nindent 8 }}

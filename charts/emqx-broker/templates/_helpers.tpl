@@ -60,3 +60,13 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Labels the EMQX operator stamps on the core pods.
+These are NOT the chart's own selectorLabels: the operator derives them from the
+EMQX resource name, so topology spread constraints must match on these.
+*/}}
+{{- define "emqx-broker.corePodSelectorLabels" -}}
+apps.emqx.io/instance: {{ include "emqx-broker.fullname" . }}
+apps.emqx.io/db-role: core
+{{- end }}

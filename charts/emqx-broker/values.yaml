@@ -77,6 +77,21 @@ resources:
     cpu: 500m
     memory: 512Mi
 
+# Deploys emqx-exporter alongside the broker, plus the ServiceMonitor and PodMonitor
+# scraped by the Prometheus operator.
+# More information can be found here: https://github.com/emqx/emqx-exporter
+#
+# When enabled, all four credentials below are required: they are rendered into the
+# exporter's config Secret. Supply them from your own release values, never here.
+# `dashboardApiKey` / `dashboardApiSecret` come from the EMQX dashboard API key,
+# `probeUsername` / `probePassword` from an EMQX user used for the MQTT probe.
+monitoring:
+  enabled: false
+  dashboardApiKey: ""
+  dashboardApiSecret: ""
+  probeUsername: ""
+  probePassword: ""
+
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 # ingress:
 #   enabled: false
@@ -99,3 +114,21 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# Spread the EMQX core pods across failure domains.
+# More information can be found here: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+#
+# `labelSelector` is optional: when omitted, the chart injects the labels the EMQX
+# operator stamps on this release's core pods, so the constraint cannot accidentally
+# match unrelated pods in the namespace. Set it explicitly only to override that.
+#
+# Note on `whenUnsatisfiable: DoNotSchedule`: with replicaCount 3 the cluster needs
+# at least 3 zones with schedulable capacity, otherwise pods stay Pending. Use
+# `ScheduleAnyway` for best-effort spreading instead.
+#
+# To force one core pod per zone:
+# topologySpreadConstraints:
+#   - maxSkew: 1
+#     topologyKey: topology.kubernetes.io/zone
+#     whenUnsatisfiable: DoNotSchedule
+topologySpreadConstraints: []

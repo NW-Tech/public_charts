@@ -1,0 +1,88 @@
+{{- /* One Deployment per .Values.workers entry (non-empty list is the feature gate). */ -}}
+{{- if .Values.workers }}
+{{- range $w := .Values.workers }}
+{{- if not $w.name }}
+{{- fail "workers[].name is required (used in the Deployment name and labels)" }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "app.fullname" $ }}-worker-{{ $w.name }}
+  labels:
+    {{- include "app.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: worker
+    app.kubernetes.io/worker: {{ $w.name }}
+spec:
+  replicas: {{ $w.replicaCount | default 1 }}
+  strategy:
+    type: {{ $w.strategy | default "Recreate" }}
+  selector:
+    matchLabels:
+      {{- include "app.workerSelectorLabels" (dict "root" $ "worker" $w) | nindent 6 }}
+  template:
+    metadata:
+      {{- if or $w.podAnnotations $.Values.fileSecrets.enabled }}
+      annotations:
+        {{- with $w.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if $.Values.fileSecrets.enabled }}
+        checksum/file-secrets: {{ include (print $.Template.BasePath "/file-secret.yaml") $ | sha256sum }}
+        {{- end }}
+      {{- end }}
+      labels:
+        {{- include "app.workerSelectorLabels" (dict "root" $ "worker" $w) | nindent 8 }}
+    spec:
+      {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "app.serviceAccountName" $ }}
+      securityContext:
+        {{- toYaml $.Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ $w.name }}
+          securityContext:
+            {{- toYaml $.Values.securityContext | nindent 12 }}
+          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
+          {{- with $w.command }}
+          command: {{ toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $w.args }}
+          args: {{ toYaml . | nindent 12 }}
+          {{- end }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          envFrom:
+            {{- include "app.envFrom" $ | nindent 12 }}
+          {{- with (include "app.env" (dict "root" $ "extra" ($w.env | default dict)) | trim) }}
+          {{- . | nindent 10 }}
+          {{- end }}
+          {{- with $.Values.ports }}
+          ports:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          livenessProbe:
+            {{- include "app.workerProbe" (dict "probe" $w.livenessProbe) | nindent 12 }}
+          readinessProbe:
+            {{- include "app.workerProbe" (dict "probe" $w.readinessProbe) | nindent 12 }}
+          resources:
+            {{- toYaml ($w.resources | default dict) | nindent 12 }}
+          {{- if and $.Values.fileSecrets.enabled $.Values.fileSecrets.data }}
+          volumeMounts:
+            {{- include "app.fileSecretsVolumeMounts" $ | trim | nindent 12 }}
+          {{- end }}
+      {{- if and $.Values.fileSecrets.enabled $.Values.fileSecrets.data }}
+      volumes:
+        {{- include "app.fileSecretsVolumes" $ | trim | nindent 8 }}
+      {{- end }}
+      {{- with $w.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $w.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+{{- end }}
+{{- end }}

@@ -17,4 +17,4 @@ spec:
   loadBalancerIP: {{ .Values.service.loadBalancerIP }}
   {{- end }}
   selector:
-    {{- include "app.selectorLabels" . | nindent 4 }}
+    {{- include "app.componentSelectorLabels" . | nindent 4 }}

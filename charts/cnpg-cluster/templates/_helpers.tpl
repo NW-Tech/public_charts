@@ -51,6 +51,9 @@ helm.sh/chart: {{ include "cluster.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- with .Values.cluster.additionalLabels }}
+{{ toYaml . }}
+{{- end }}
 {{- end }}
 
 {{/*
@@ -145,48 +148,116 @@ Postgres GID
   {{- end -}}
 {{- end -}}
 
+
 {{/*
-Validate PodDisruptionBudget configuration for a pooler.
-Expects a dict with: "pooler" (the pooler entry) and "instances" (effective instance count).
+Check if a list of objects has a set key value pairs
 */}}
-{{- define "cluster.validatePoolerPdb" -}}
-{{- $pooler := .pooler }}
-{{- $instances := int .instances }}
+{{- /* Usage: {{ include "helpers.hasKeyValue" (list .Values.list (list (list "key" "value"))) }} */}}
+{{- /* Returns the string true if the list has an item matching the key value pairs */}}
+{{- define "helpers.hasKeyValue" -}}
+  {{- $list := index . 0 }}
+  {{- $kvPairs := index . 1 }}
 
-{{/* Validate: at least one of maxUnavailable or minAvailable must be set */}}
-{{- if and (not (hasKey $pooler.podDisruptionBudget "maxUnavailable")) (not (hasKey $pooler.podDisruptionBudget "minAvailable")) }}
-  {{ fail (printf "pooler '%s': podDisruptionBudget is enabled but neither maxUnavailable nor minAvailable is set. Please set exactly one." $pooler.name) }}
-{{- end }}
+  {{- range $list }}
+    {{- $item := . }}
+    {{- $valid := true }}
+    {{- range $kvPairs }}
+      {{- $key := index . 0 -}}
+      {{- $value := index . 1 -}}
+      {{- if or (not (hasKey $item $key)) (not (eq (get $item $key) $value)) -}}
+        {{- $valid = false -}}
+        {{- break -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if $valid -}}
+      {{- "true" -}}
+      {{- break -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
 
-{{/* Validate: maxUnavailable and minAvailable are mutually exclusive */}}
-{{- if and (hasKey $pooler.podDisruptionBudget "maxUnavailable") (hasKey $pooler.podDisruptionBudget "minAvailable") }}
-  {{ fail (printf "pooler '%s': podDisruptionBudget.maxUnavailable and minAvailable are mutually exclusive. Please set only one." $pooler.name) }}
-{{- end }}
+{{/*
+Similar to the omit function, returns a list of items that do not match the key value pairs
+*/}}
+{{- /* Usage: {{ include "helpers.omitKeyValue" (list .Values.list (list (list "key" "value"))) }} */}}
+{{- /* Returns a YAML list without the items matching the key value pairs */}}
+{{- define "helpers.omitKeyValue" -}}
+  {{- $list := index . 0 }}
+  {{- $kvPairs := index . 1 }}
+  {{- $newList := list }}
 
-{{/* Validate maxUnavailable: instances - maxUnavailable must be > 0 */}}
-{{- if hasKey $pooler.podDisruptionBudget "maxUnavailable" }}
-  {{- if or (kindIs "float64" $pooler.podDisruptionBudget.maxUnavailable) (kindIs "int64" $pooler.podDisruptionBudget.maxUnavailable) }}
-    {{- $val := int $pooler.podDisruptionBudget.maxUnavailable }}
-    {{- if le $val 0 }}
-      {{ fail (printf "pooler '%s': podDisruptionBudget.maxUnavailable must be a positive integer, got %d" $pooler.name $val) }}
-    {{- end }}
-    {{- if ge $val $instances }}
-      {{ fail (printf "pooler '%s': podDisruptionBudget.maxUnavailable (%d) must be strictly less than instances (%d). Difference must be > 0." $pooler.name $val $instances) }}
-    {{- end }}
-  {{- end }}
-{{- end }}
+  {{- range $list }}
+    {{- $item := . }}
+    {{- $shouldOmit := false }}
+    {{- range $kvPairs }}
+      {{- $key := index . 0 -}}
+      {{- $value := index . 1 -}}
+      {{- if and (hasKey $item $key) (eq (get $item $key) $value) -}}
+        {{- $shouldOmit = true -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if not $shouldOmit -}}
+      {{- $newList = append $newList $item -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $newList | toYaml }}
+{{ end -}}
 
-{{/* Validate minAvailable: instances - minAvailable must be > 0 */}}
-{{- if hasKey $pooler.podDisruptionBudget "minAvailable" }}
-  {{- if or (kindIs "float64" $pooler.podDisruptionBudget.minAvailable) (kindIs "int64" $pooler.podDisruptionBudget.minAvailable) }}
-    {{- $val := int $pooler.podDisruptionBudget.minAvailable }}
-    {{- if le $val 0 }}
-      {{ fail (printf "pooler '%s': podDisruptionBudget.minAvailable must be a positive integer, got %d" $pooler.name $val) }}
-    {{- end }}
-    {{- if ge $val $instances }}
-      {{ fail (printf "pooler '%s': podDisruptionBudget.minAvailable (%d) must be strictly less than instances (%d). Difference must be > 0." $pooler.name $val $instances) }}
-    {{- end }}
-  {{- end }}
-{{- end }}
 
-{{- end }}
+{{/*
+Given a list of objects, returns the first item that matches the key value pairs specified
+*/}}
+{{- /* Usage: {{ include "helpers.fetchKeyValue" (list .Values.list (list (list "key" "value"))) }} */}}
+{{- /* Returns a YAML object of the first item in the list has an item matching the key value pairs */}}
+{{- define "helpers.fetchKeyValue" -}}
+  {{- $list := index . 0 }}
+  {{- $kvPairs := index . 1 }}
+  {{- range $list }}
+    {{- $item := . }}
+    {{- $valid := true }}
+    {{- range $kvPairs }}
+      {{- $key := index . 0 -}}
+      {{- $value := index . 1 -}}
+      {{- if or (not (hasKey $item $key)) (not (eq (get $item $key) $value)) -}}
+        {{- $valid = false -}}
+        {{- break -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if $valid -}}
+      {{- toYaml $item -}}
+      {{- break -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "cluster.barmanPluginEnabled" -}}
+  {{- eq (include "helpers.hasKeyValue" (list .Values.cluster.plugins (list (list "name" "barman-cloud.cloudnative-pg.io") (list "isWALArchiver" true)))) "true" -}}
+{{- end -}}
+
+{{- define "cluster.barmanPluginRequired" -}}
+  {{- $required := false -}}
+  {{- if and .Values.backups.enabled (eq .Values.backups.method "plugin") -}}
+    {{- if eq .Values.backups.pluginConfiguration.name "barman-cloud.cloudnative-pg.io" -}}
+      {{- $required = true -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $required -}}
+{{- end -}}
+
+{{/*
+Name of the ObjectStore used by the barman-cloud.cloudnative-pg.io plugin.
+Returns the plugin's `barmanObjectName` parameter when set, otherwise defaults to "<fullname>-<suffix>".
+Expects a dict with:
+  - context: the root scope
+  - suffix: "backups" (reads parameters from the cluster.plugins entry) or "recovery" (reads recovery.pluginConfiguration.parameters)
+*/}}
+{{- define "cluster.barmanObjectName" -}}
+  {{- $parameters := dict -}}
+  {{- if eq .suffix "recovery" -}}
+    {{- $parameters = coalesce .context.Values.recovery.pluginConfiguration.parameters dict -}}
+  {{- else -}}
+    {{- $barmanPlugin := include "helpers.fetchKeyValue" (list .context.Values.cluster.plugins (list (list "name" "barman-cloud.cloudnative-pg.io"))) | fromYaml -}}
+    {{- $parameters = coalesce $barmanPlugin.parameters dict -}}
+  {{- end -}}
+  {{- $parameters.barmanObjectName | default (printf "%s-%s" (include "cluster.fullname" .context) .suffix) -}}
+{{- end -}}

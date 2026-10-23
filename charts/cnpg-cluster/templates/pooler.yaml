@@ -5,6 +5,10 @@ kind: Pooler
 metadata:
   name: {{ include "cluster.fullname" $  }}-pooler-{{ .name }}
   namespace: {{ include "cluster.namespace" $ }}
+  labels:
+    cnpg.io/cluster: {{ include "cluster.fullname" $ }}
+    {{- include "cluster.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: pooler
 spec:
   cluster:
     name: {{ include "cluster.fullname" $ }}
@@ -28,20 +32,7 @@ spec:
     pg_hba:
       {{- toYaml . | nindent 6 }}
     {{- end }}
-  {{ with .monitoring }}
-  monitoring:
-  {{- if not (empty .podMonitor) }}
-    enablePodMonitor: {{ and .enabled .podMonitor.enabled }}
-    {{- with .podMonitor.relabelings }}
-    podMonitorRelabelings:
-      {{- toYaml . | nindent 6 }}
-    {{ end }}
-    {{- with .podMonitor.metricRelabelings }}
-    podMonitorMetricRelabelings:
-      {{- toYaml . | nindent 6 }}
-    {{ end }}
-  {{- end }}
-  {{- end }}
+  {{- /* NW: `podAntiAffinity` shorthand, ignored when a free-form `template` is set. */}}
   {{- $pa := .podAntiAffinity | default dict }}
   {{- if .template }}
   template:
@@ -68,6 +59,7 @@ spec:
                     cnpg.io/poolerName: {{ include "cluster.fullname" $ }}-pooler-{{ .name }}
           {{- end }}
   {{- end }}
+  {{- /* NW: not exposed upstream yet (cloudnative-pg/charts#898). */}}
   {{- with .serviceTemplate }}
   serviceTemplate:
     {{- . | toYaml | nindent 4 }}

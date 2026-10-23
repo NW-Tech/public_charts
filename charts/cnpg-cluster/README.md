@@ -1,6 +1,6 @@
 # cluster
 
-![Version: 0.8.1](https://img.shields.io/badge/Version-0.8.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 > **Warning**
 > ### This chart is under active development.
@@ -64,6 +64,28 @@ backups:
 
 Getting Started
 ---------------
+
+### NW fork
+
+This chart is the upstream [cloudnative-pg/charts `cluster`](https://github.com/cloudnative-pg/charts/tree/main/charts/cluster)
+chart (currently based on **0.9.0**, see the `nw/upstream-chart-version` annotation) with a few
+additions that upstream does not provide yet. Everything else behaves exactly like upstream.
+
+| Value | Purpose | Upstream status |
+|---|---|---|
+| `poolers[].serviceTemplate` | Passed as-is to `Pooler.spec.serviceTemplate`, e.g. an internal LoadBalancer with a fixed IP | Open PR [#898](https://github.com/cloudnative-pg/charts/pull/898) |
+| `poolers[].podDisruptionBudget` (`enabled`, one of `minAvailable` / `maxUnavailable`) | Renders a `PodDisruptionBudget` for the pooler pods (validated against `instances`) | Not available |
+| `poolers[].podAntiAffinity` (`enabled`, `topologyKey`, `podAntiAffinityType`) | Shorthand for pooler pod anti-affinity on `cnpg.io/poolerName`; ignored when `template` is set | Possible with `template` |
+
+NW defaults that differ from upstream:
+
+* `cluster.affinity`: `enablePodAntiAffinity: true`, `topologyKey: kubernetes.io/hostname`, `podAntiAffinityType: preferred` (upstream: zone).
+* `cluster.replicationSlots`: HA slots stated explicitly (same values as the operator defaults).
+* `backups.objectStore.helmHook: false` (upstream: `true`): as a Helm hook the plugin `ObjectStore` is deleted and recreated on every `helm upgrade`.
+
+To rebase on a newer upstream release: import the upstream chart as-is in one commit, then re-apply the
+items above (`templates/pooler.yaml`, `templates/pooler-pdb.yaml`, `cluster.validatePoolerPdb` in
+`templates/_helpers.tpl`, the defaults in `values.yaml`) and drop any item upstream has since adopted.
 
 ### Installing the Operator
 Skip this step if the CNPG operator is already installed in your cluster.

@@ -279,7 +279,12 @@ cluster:
   # -- Affinity/Anti-affinity rules for Pods.
   # See: https://cloudnative-pg.io/documentation/current/cloudnative-pg.v1/#postgresql-cnpg-io-v1-AffinityConfiguration
   affinity:
-    topologyKey: topology.kubernetes.io/zone
+    # NW default (upstream: topology.kubernetes.io/zone, no explicit anti-affinity):
+    # spread instances across nodes, preferred so single-zone clusters still schedule.
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
+    # podAntiAffinityType: required | preferred (default: preferred)
+    podAntiAffinityType: preferred
 
   # -- Env follows the Env format to pass environment variables to the pods created in the cluster
   env: []
@@ -443,12 +448,13 @@ cluster:
   # the CDC client creates its logical slot with `failover = true`.
   # Requires CloudNativePG 1.27+ and PostgreSQL 17+ for native failover slots.
   # See: https://cloudnative-pg.io/documentation/current/replication/#replication-slots
-  replicationSlots: {}
-    # highAvailability:
-    #   enabled: true
-    #   slotPrefix: "_cnpg_"
-    #   synchronizeLogicalDecoding: true
-    # updateInterval: 30
+  # NW default (upstream: {}): HA slots stated explicitly, same values as the operator defaults.
+  replicationSlots:
+    highAvailability:
+      enabled: true
+      slotPrefix: _cnpg_
+      # synchronizeLogicalDecoding: true
+    updateInterval: 30
 
   # -- BootstrapInitDB is the configuration of the bootstrap process when initdb is used.
   # See: https://cloudnative-pg.io/documentation/current/bootstrap/
@@ -515,7 +521,11 @@ backups:
     create: true
     # -- Render the `ObjectStore` as a Helm hook (pre-install,pre-upgrade,pre-rollback) so it is applied before
     # the Cluster. Set to false for GitOps tools (ArgoCD/Flux) that treat Helm hooks as ephemeral resources
-    helmHook: true
+    # NW default (upstream: true): as a hook, Helm's implicit before-hook-creation policy deletes and recreates
+    # the ObjectStore on every `helm upgrade` while the archiver uses it, and a hook-created ObjectStore cannot be
+    # switched to a release resource later (missing ownership metadata). Validated in
+    # infra_gcp_charts docs/poc/cnpg-barman-cloud-plugin.
+    helmHook: false
     # -- Extra annotations for the plugin `ObjectStore` resources only. Handy
     # for e.g. `argocd.argoproj.io/sync-wave: "-1"` when helmHook above is set to false.
     annotations: {}
@@ -760,8 +770,22 @@ poolers: []
   #       # Applied to samples before ingestion.
   #       metricRelabelings: []
   #   # -- Custom PgBouncer deployment template.
-  #   # Use to override image, specify resources, etc.
+  #   # Use to override image, specify resources, etc. Takes precedence over podAntiAffinity below.
   #   template: {}
+  #   # -- (NW) Custom PgBouncer service template.
+  #   # Use to override service type, ports, etc.
+  #   serviceTemplate: {}
+  #   # -- (NW) PodDisruptionBudget for this pooler
+  #   # Only one of maxUnavailable or minAvailable should be set
+  #   podDisruptionBudget:
+  #     enabled: false
+  #     minAvailable: 1
+  #   # -- (NW) Quick-toggle pod anti-affinity using the cnpg.io/poolerName label.
+  #   # Ignored if `template` is set (free-form override wins).
+  #   podAntiAffinity:
+  #     enabled: false
+  #     topologyKey: kubernetes.io/hostname
+  #     podAntiAffinityType: preferred  # preferred | required
   # -
   #   # -- Pooler name
   #   name: ro
@@ -791,5 +815,19 @@ poolers: []
   #       # Applied to samples before ingestion.
   #       metricRelabelings: []
   #   # -- Custom PgBouncer deployment template.
-  #   # Use to override image, specify resources, etc.
+  #   # Use to override image, specify resources, etc. Takes precedence over podAntiAffinity below.
   #   template: {}
+  #   # -- (NW) Custom PgBouncer service template.
+  #   # Use to override service type, ports, etc.
+  #   serviceTemplate: {}
+  #   # -- (NW) PodDisruptionBudget for this pooler
+  #   # Only one of maxUnavailable or minAvailable should be set
+  #   podDisruptionBudget:
+  #     enabled: false
+  #     minAvailable: 1
+  #   # -- (NW) Quick-toggle pod anti-affinity using the cnpg.io/poolerName label.
+  #   # Ignored if `template` is set (free-form override wins).
+  #   podAntiAffinity:
+  #     enabled: false
+  #     topologyKey: kubernetes.io/hostname
+  #     podAntiAffinityType: preferred  # preferred | required

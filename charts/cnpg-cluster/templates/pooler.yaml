@@ -32,8 +32,36 @@ spec:
     pg_hba:
       {{- toYaml . | nindent 6 }}
     {{- end }}
-  {{- with .template }}
+  {{- /* NW: `podAntiAffinity` shorthand, ignored when a free-form `template` is set. */}}
+  {{- $pa := .podAntiAffinity | default dict }}
+  {{- if .template }}
   template:
+    {{- .template | toYaml | nindent 4 }}
+  {{- else if $pa.enabled }}
+  template:
+    spec:
+      containers: []
+      affinity:
+        podAntiAffinity:
+          {{- if eq ($pa.podAntiAffinityType | default "preferred") "required" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: {{ $pa.topologyKey | default "kubernetes.io/hostname" }}
+              labelSelector:
+                matchLabels:
+                  cnpg.io/poolerName: {{ include "cluster.fullname" $ }}-pooler-{{ .name }}
+          {{- else }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: {{ $pa.topologyKey | default "kubernetes.io/hostname" }}
+                labelSelector:
+                  matchLabels:
+                    cnpg.io/poolerName: {{ include "cluster.fullname" $ }}-pooler-{{ .name }}
+          {{- end }}
+  {{- end }}
+  {{- /* NW: not exposed upstream yet (cloudnative-pg/charts#898). */}}
+  {{- with .serviceTemplate }}
+  serviceTemplate:
     {{- . | toYaml | nindent 4 }}
   {{- end }}
 {{- end }}

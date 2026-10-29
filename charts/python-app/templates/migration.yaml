@@ -53,7 +53,7 @@ spec:
         - name: alembic-migrations
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["alembic", "upgrade", "head"]
+          command: {{ toYaml .Values.migrations.command | nindent 12 }}
           env:
             # Force Python to be unbuffered for immediate log output
             - name: PYTHONUNBUFFERED

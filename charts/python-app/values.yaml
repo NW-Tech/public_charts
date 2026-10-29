@@ -162,6 +162,11 @@ migrations:
   hookTimeout: "300"
   backoffLimit: 3
   ttlSecondsAfterFinished: 100
+  # Chain commands with a shell: ["sh", "-c", "alembic upgrade head && python -m run_seeds"]
+  command:
+    - "alembic"
+    - "upgrade"
+    - "head"
   waitForDatabase:
     image: "ghcr.io/cloudnative-pg/postgresql:17-system-trixie"
     resources:

@@ -46,10 +46,18 @@ spec:
   {{- if .template }}
   template:
     {{- .template | toYaml | nindent 4 }}
-  {{- else if $pa.enabled }}
+  {{- else if or .resources $pa.enabled }}
   template:
     spec:
+      {{- if .resources }}
+      containers:
+        - name: pgbouncer
+          resources:
+            {{- toYaml .resources | nindent 12 }}
+      {{- else }}
       containers: []
+      {{- end }}
+      {{- if $pa.enabled }}
       affinity:
         podAntiAffinity:
           {{- if eq ($pa.podAntiAffinityType | default "preferred") "required" }}
@@ -67,6 +75,7 @@ spec:
                   matchLabels:
                     cnpg.io/poolerName: {{ include "cluster.fullname" $ }}-pooler-{{ .name }}
           {{- end }}
+      {{- end }}
   {{- end }}
   {{- with .serviceTemplate }}
   serviceTemplate:

@@ -487,8 +487,11 @@ poolers: []
   #     podMonitor:
   #         # -- Whether to enable the PodMonitor
   #       enabled: true
+  #   # -- Resource requests/limits for the pgbouncer container.
+  #   # Ignored if `template` is set (free-form override wins).
+  #   resources: {}
   #   # -- Custom PgBouncer deployment template.
-  #   # Use to override image, specify resources, etc. Takes precedence over podAntiAffinity below.
+  #   # Use to override image, specify resources, etc. Takes precedence over resources and podAntiAffinity.
   #   template: {}
   #   # -- Custom PgBouncer service template.
   #   # Use to override service type, ports, etc.

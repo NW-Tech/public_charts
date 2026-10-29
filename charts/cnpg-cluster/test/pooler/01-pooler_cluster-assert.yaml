@@ -2,6 +2,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pooler-cluster-pooler-rw
+spec:
+  template:
+    spec:
+      containers:
+        - name: pgbouncer
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
 status:
   readyReplicas: 2
 ---

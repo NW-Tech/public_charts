@@ -12,6 +12,10 @@ poolers:
     type: rw
     instances: 2
     poolMode: transaction
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
   - name: ro
     type: ro
     instances: 2

@@ -1,0 +1,18 @@
+name: Package Charts
+
+on:
+  pull_request:
+
+jobs:
+  package-chart:
+    name: Package changed Helm charts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Same packaging as the release, without uploading.
+      - name: Package changed charts
+        uses: ./.github/actions/package-charts

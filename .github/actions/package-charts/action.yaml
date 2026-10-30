@@ -1,0 +1,24 @@
+name: Package charts
+description: Package the changed charts into .cr-release-packages, in dependency order.
+
+outputs:
+  packaged:
+    description: "'true' when at least one chart was packaged."
+    value: ${{ steps.package.outputs.packaged }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install helm
+      uses: azure/setup-helm@v5
+      with:
+        version: v3.22.1
+
+    - name: Package changed charts
+      id: package
+      shell: bash
+      run: |
+        pipx run "$GITHUB_ACTION_PATH/release-charts.py"
+        if ls .cr-release-packages/*.tgz >/dev/null 2>&1; then
+          echo "packaged=true" >> "$GITHUB_OUTPUT"
+        fi

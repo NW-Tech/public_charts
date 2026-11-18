@@ -209,6 +209,7 @@ deployment:
 # - tolerations
 # it gets no probes and no resources unless set.
 # No Service, Ingress, HPA or PDB.
+# Scraped by the app's podMonitor when enabled.
 #
 # 1 replica with the Recreate strategy: rollouts never run two pods at once
 # /!\ but an eviction or node drain starts the replacement while the old pod is still

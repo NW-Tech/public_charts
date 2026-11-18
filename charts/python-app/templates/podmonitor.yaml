@@ -12,7 +12,14 @@ metadata:
 spec:
   selector:
     matchLabels:
-      {{- include "app.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+    # The app and its workers (see worker-deployment.yaml).
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values:
+          - {{ include "app.name" . }}
+          - {{ include "app.workerAppName" . }}
 
   namespaceSelector:
     matchNames:

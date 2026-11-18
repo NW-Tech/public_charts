@@ -155,6 +155,29 @@ tolerations:
 {{- end }}
 
 {{/*
+Shared container fields: everything but name, command, args, probes and resources.
+*/}}
+{{- define "app.containerBase" -}}
+securityContext:
+  {{- toYaml .Values.securityContext | nindent 2 }}
+image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+imagePullPolicy: {{ .Values.image.pullPolicy }}
+envFrom:
+  {{- include "app.envFrom" . | nindent 2 }}
+{{- with (include "app.fileSecretsEnv" . | trim) }}
+{{ . }}
+{{- end }}
+{{- with .Values.ports }}
+ports:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- if and .Values.fileSecrets.enabled .Values.fileSecrets.data }}
+volumeMounts:
+  {{- include "app.fileSecretsVolumeMounts" . | trim | nindent 2 }}
+{{- end }}
+{{- end }}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "app.serviceAccountName" -}}

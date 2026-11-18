@@ -230,6 +230,9 @@ workers: {}
 #      hostAliases:
 #        - ip: "10.0.0.1"
 #          hostnames: [legacy.example.com]
+#    # Leave the worker out of the app's podMonitor (e.g. no /metrics endpoint).
+#    podMonitor:
+#      enabled: false
 
 secrets:
   enabled: false

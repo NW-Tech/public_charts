@@ -130,6 +130,31 @@ Shared fileSecrets pod volumes list items.
 {{- end }}
 
 {{/*
+Shared pod spec fields: everything but containers and affinity.
+*/}}
+{{- define "app.podSpecBase" -}}
+{{- with .Values.imagePullSecrets }}
+imagePullSecrets:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+serviceAccountName: {{ include "app.serviceAccountName" . }}
+securityContext:
+  {{- toYaml .Values.podSecurityContext | nindent 2 }}
+{{- if and .Values.fileSecrets.enabled .Values.fileSecrets.data }}
+volumes:
+  {{- include "app.fileSecretsVolumes" . | trim | nindent 2 }}
+{{- end }}
+{{- with .Values.nodeSelector }}
+nodeSelector:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with .Values.tolerations }}
+tolerations:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end }}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "app.serviceAccountName" -}}

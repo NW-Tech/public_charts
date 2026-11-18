@@ -20,13 +20,7 @@ spec:
       labels:
         {{- include "app.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "app.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- include "app.podSpecBase" . | nindent 6 }}
       containers:
         - name: {{ include "app.fullname" $ }}
           securityContext:
@@ -58,14 +52,6 @@ spec:
           volumeMounts:
             {{- include "app.fileSecretsVolumeMounts" . | trim | nindent 12 }}
           {{- end }}
-      {{- if and .Values.fileSecrets.enabled .Values.fileSecrets.data }}
-      volumes:
-        {{- include "app.fileSecretsVolumes" . | trim | nindent 8 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       {{- if or .Values.nodeAffinity .Values.podAntiAffinity.enabled }}
       affinity:
         {{- with .Values.nodeAffinity }}
@@ -90,8 +76,4 @@ spec:
                     {{- include "app.selectorLabels" . | nindent 20 }}
           {{- end }}
         {{- end }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
       {{- end }}

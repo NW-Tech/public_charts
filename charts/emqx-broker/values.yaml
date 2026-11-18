@@ -38,11 +38,14 @@ persistence:
   size: 10Gi
 
 # This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+#
+# `loadBalancerIP` is empty on purpose: every release must set its own reserved
+# internal IP. A shared default made two releases claim the same address.
 dashboardServiceTemplate:
   # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   spec:
     type: LoadBalancer
-    loadBalancerIP: "10.11.0.79"
+    loadBalancerIP: ""
   metadata:
     annotations:
       networking.gke.io/load-balancer-type: Internal
@@ -50,7 +53,7 @@ dashboardServiceTemplate:
 listenersServiceTemplate:
   spec:
     type: LoadBalancer
-    loadBalancerIP: "10.11.0.80"
+    loadBalancerIP: ""
   metadata:
     annotations:
       networking.gke.io/load-balancer-type: Internal

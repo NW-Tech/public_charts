@@ -29,8 +29,4 @@ spec:
       # the label is the same as the label of emqx pod
       apps.emqx.io/instance: {{ include "emqx-broker.fullname" . }}
       apps.emqx.io/managed-by: emqx-operator
-  namespaceSelector:
-    matchNames:
-      # modify the namespace if your EMQX cluster deployed in other namespace
-      #- default
 {{- end }}

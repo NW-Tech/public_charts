@@ -1115,6 +1115,16 @@ entries:
   emqx-broker:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2026-11-18T08:47:58.794922242Z"
+    description: A Helm chart for Kubernetes
+    digest: 099a0d224dc1a391e704fa98a595391e1ee5522aaf0eba7ec76718a7009e38cd
+    name: emqx-broker
+    type: application
+    urls:
+    - emqx-broker-0.1.5.tgz
+    version: 0.1.5
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2026-09-16T14:25:04.084081195Z"
     description: A Helm chart for Kubernetes
     digest: f7ef8441f7adb8dcec3766fc6cf8410d482feed8d6f315aa0077ee31ef53dd23
@@ -2649,4 +2659,4 @@ entries:
     urls:
     - python-app-0.1.0.tgz
     version: 0.1.0
-generated: "2026-10-30T09:48:59.125317118Z"
+generated: "2026-11-18T08:47:58.795589016Z"

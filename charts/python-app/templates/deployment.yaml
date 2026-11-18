@@ -13,14 +13,9 @@ spec:
       {{- include "app.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- if or .Values.podAnnotations .Values.fileSecrets.enabled }}
+      {{- with (include "app.podAnnotations" . | trim) }}
       annotations:
-        {{- with .Values.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
-        {{- if .Values.fileSecrets.enabled }}
-        checksum/file-secrets: {{ include (print $.Template.BasePath "/file-secret.yaml") . | sha256sum }}
-        {{- end }}
+        {{- . | nindent 8 }}
       {{- end }}
       labels:
         {{- include "app.selectorLabels" . | nindent 8 }}

@@ -51,6 +51,19 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+Shared pod template annotations: podAnnotations, plus a checksum of the file
+secrets so pods roll when one changes. Renders nothing when empty.
+*/}}
+{{- define "app.podAnnotations" -}}
+{{- with .Values.podAnnotations }}
+{{ toYaml . }}
+{{- end }}
+{{- if .Values.fileSecrets.enabled }}
+checksum/file-secrets: {{ include (print .Template.BasePath "/file-secret.yaml") . | sha256sum }}
+{{- end }}
+{{- end }}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "app.serviceAccountName" -}}

@@ -1,0 +1,44 @@
+{{- /*
+One singleton Deployment per .Values.workers entry, from the app image and config.
+The entry's `container` and `podSpec` maps are deep-merged over the rendered
+container and pod spec; lists are replaced, not merged.
+*/ -}}
+{{- range $workerName, $entry := .Values.workers }}
+{{- $worker := $entry | default dict }}
+{{- if not (and (le (len $workerName) 63) (regexMatch "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$" $workerName)) }}
+{{- fail (printf "workers.%s: the name must be a DNS label (at most 63 lowercase letters, digits or '-')" $workerName) }}
+{{- end }}
+{{- $_ := required (printf "workers.%s.container.command is required" $workerName) (dig "container" "command" nil $worker) }}
+{{- $workerContext := dict "root" $ "name" $workerName }}
+{{- $podSpec := include "app.workerPodSpec" $workerContext | fromYaml }}
+{{- with $podSpec.Error }}
+{{- fail (printf "workers.%s: the rendered pod spec is not valid YAML: %s" $workerName .) }}
+{{- end }}
+{{- $_ := mergeOverwrite (index $podSpec.containers 0) ($worker.container | default dict) }}
+{{- $_ := mergeOverwrite $podSpec ($worker.podSpec | default dict) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "app.fullname" $ }}-worker-{{ $workerName }}
+  labels:
+    {{- include "app.workerLabels" $workerContext | nindent 4 }}
+spec:
+  # Exactly one replica, and never two at once during a rollout.
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "app.workerSelectorLabels" $workerContext | nindent 6 }}
+  template:
+    metadata:
+      {{- with (include "app.podAnnotations" $ | trim) }}
+      annotations:
+        {{- . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "app.workerSelectorLabels" $workerContext | nindent 8 }}
+    spec:
+      {{- toYaml $podSpec | nindent 6 }}
+---
+{{- end }}

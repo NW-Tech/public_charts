@@ -51,6 +51,51 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+app.kubernetes.io/name of every worker pod. Distinct from app.name, so worker
+pods stay out of every app.selectorLabels selector.
+*/}}
+{{- define "app.workerAppName" -}}
+{{- include "app.name" . | trunc 56 | trimSuffix "-" }}-worker
+{{- end }}
+
+{{/*
+Selector labels of a worker. Call with `(dict "root" $ "name" <worker name>)`.
+*/}}
+{{- define "app.workerSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "app.workerAppName" .root }}
+app.kubernetes.io/instance: {{ .root.Release.Name }}
+app.kubernetes.io/component: worker
+python-app.io/worker: {{ .name }}
+{{- end }}
+
+{{/*
+Common labels of a worker. Call with `(dict "root" $ "name" <worker name>)`.
+*/}}
+{{- define "app.workerLabels" -}}
+helm.sh/chart: {{ include "app.chart" .root }}
+{{ include "app.workerSelectorLabels" . }}
+{{- if .root.Chart.AppVersion }}
+app.kubernetes.io/version: {{ .root.Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .root.Release.Service }}
+{{- end }}
+
+{{/*
+Pod spec of a worker before its overrides. Call with `(dict "root" $ "name" <worker name>)`.
+*/}}
+{{- define "app.workerPodSpec" -}}
+{{ include "app.podSpecBase" .root }}
+containers:
+  - name: {{ .name }}
+    {{- include "app.containerBase" .root | nindent 4 }}
+{{- with .root.Values.nodeAffinity }}
+affinity:
+  nodeAffinity:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+{{- end }}
+
+{{/*
 Shared envFrom list items: the configMap, the celery-urls secret (when celery
 credentials are set), and one secretRef per .Values.secrets.data entry.
 */}}

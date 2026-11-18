@@ -194,6 +194,42 @@ deployment:
   args:
     - "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"
 
+# Background workers, unrelated to celeryWorker: one Deployment per entry, keyed by
+# worker name (a DNS label).
+# Each reuses the app's:
+# - image
+# - ports
+# - envFrom/env
+# - fileSecrets
+# - podAnnotations
+# - serviceAccount
+# - security contexts
+# - nodeSelector
+# - nodeAffinity
+# - tolerations
+# it gets no probes and no resources unless set.
+# No Service, Ingress, HPA or PDB.
+#
+# 1 replica with the Recreate strategy: rollouts never run two pods at once
+# /!\ but an eviction or node drain starts the replacement while the old pod is still
+# terminating, and a pod on an unreachable node may keep running.
+# A worker that must never run twice needs its own lock
+# (e.g. a Postgres advisory lock or a Kubernetes Lease).
+workers: {}
+#  ingest:
+#    # Deep-merged over the worker container; lists are replaced. `command` is required.
+#    container:
+#      command: ["python", "-m", "app.worker"]
+#      resources: {}
+#      livenessProbe:
+#        httpGet: {path: /health, port: http}
+#    # Deep-merged over the pod spec; lists are replaced.
+#    podSpec:
+#      terminationGracePeriodSeconds: 120
+#      hostAliases:
+#        - ip: "10.0.0.1"
+#          hostnames: [legacy.example.com]
+
 secrets:
   enabled: false
 

@@ -13,70 +13,22 @@ spec:
       {{- include "app.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- if or .Values.podAnnotations .Values.fileSecrets.enabled }}
+      {{- with (include "app.podAnnotations" . | trim) }}
       annotations:
-        {{- with .Values.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
-        {{- if .Values.fileSecrets.enabled }}
-        checksum/file-secrets: {{ include (print $.Template.BasePath "/file-secret.yaml") . | sha256sum }}
-        {{- end }}
+        {{- . | nindent 8 }}
       {{- end }}
       labels:
         {{- include "app.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "app.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- include "app.podSpecBase" . | nindent 6 }}
       containers:
         - name: {{ include "app.fullname" $ }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          {{- include "app.containerBase" . | nindent 10 }}
           {{- if .Values.deployment.command }}
           command: {{ toYaml .Values.deployment.command | nindent 12 }}
           {{- end }}
           {{- if .Values.deployment.args }}
           args: {{ toYaml .Values.deployment.args | nindent 12 }}
-          {{- end }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          envFrom:
-            - configMapRef:
-                name: {{ include "app.fullname" . }}-configmap
-            {{- if and .Values.secrets.enabled (hasKey .Values.secrets.data "celery-credentials") (hasKey (index .Values.secrets.data "celery-credentials") "CELERY_BROKER_PASSWORD") (hasKey (index .Values.secrets.data "celery-credentials") "CELERY_BACKEND_PASSWORD") }}
-            - secretRef:
-                name: {{ include "app.fullname" . }}-celery-urls
-            {{- end }}
-            {{- if .Values.secrets.enabled }}
-            {{- range $secretName, $_ := .Values.secrets.data }}
-            - secretRef:
-                name: {{ include "app.fullname" $ }}-{{ $secretName }}
-            {{- end }}
-            {{- end }}
-          {{- if .Values.fileSecrets.enabled }}
-          {{- $envItems := dict }}
-          {{- range $name, $spec := .Values.fileSecrets.data }}
-          {{- if $spec.env }}
-          {{- range $k, $v := $spec.env }}
-          {{- $_ := set $envItems $k $v }}
-          {{- end }}
-          {{- end }}
-          {{- end }}
-          {{- if gt (len $envItems) 0 }}
-          env:
-            {{- range $k, $v := $envItems }}
-            - name: {{ $k }}
-              value: {{ $v | quote }}
-            {{- end }}
-          {{- end }}
-          {{- end }}
-          {{- with .Values.ports }}
-          ports:
-            {{- toYaml . | nindent 12 }}
           {{- end }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
@@ -84,30 +36,6 @@ spec:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if and .Values.fileSecrets.enabled .Values.fileSecrets.data }}
-          volumeMounts:
-            {{- range $name, $spec := .Values.fileSecrets.data }}
-            - name: file-secret-{{ $name }}
-              mountPath: {{ $spec.mountPath }}
-              readOnly: true
-            {{- end }}
-          {{- end }}
-      {{- if and .Values.fileSecrets.enabled .Values.fileSecrets.data }}
-      volumes:
-        {{- range $name, $spec := .Values.fileSecrets.data }}
-        - name: file-secret-{{ $name }}
-          secret:
-            secretName: {{ include "app.fullname" $ }}-{{ $name }}
-            defaultMode: {{ $spec.defaultMode | default 0400 }}
-            items:
-              - key: {{ $spec.filename }}
-                path: {{ $spec.filename }}
-        {{- end }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       {{- if or .Values.nodeAffinity .Values.podAntiAffinity.enabled }}
       affinity:
         {{- with .Values.nodeAffinity }}
@@ -132,8 +60,4 @@ spec:
                     {{- include "app.selectorLabels" . | nindent 20 }}
           {{- end }}
         {{- end }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
       {{- end }}

@@ -51,6 +51,178 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+app.kubernetes.io/name of every worker pod. Distinct from app.name, so worker
+pods stay out of every app.selectorLabels selector.
+*/}}
+{{- define "app.workerAppName" -}}
+{{- include "app.name" . | trunc 56 | trimSuffix "-" }}-worker
+{{- end }}
+
+{{/*
+Selector labels of a worker. Call with `(dict "root" $ "name" <worker name>)`.
+*/}}
+{{- define "app.workerSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "app.workerAppName" .root }}
+app.kubernetes.io/instance: {{ .root.Release.Name }}
+app.kubernetes.io/component: worker
+python-app.io/worker: {{ .name }}
+{{- end }}
+
+{{/*
+Common labels of a worker. Call with `(dict "root" $ "name" <worker name>)`.
+*/}}
+{{- define "app.workerLabels" -}}
+helm.sh/chart: {{ include "app.chart" .root }}
+{{ include "app.workerSelectorLabels" . }}
+{{- if .root.Chart.AppVersion }}
+app.kubernetes.io/version: {{ .root.Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .root.Release.Service }}
+{{- end }}
+
+{{/*
+Pod spec of a worker before its overrides. Call with `(dict "root" $ "name" <worker name>)`.
+*/}}
+{{- define "app.workerPodSpec" -}}
+{{ include "app.podSpecBase" .root }}
+containers:
+  - name: {{ .name }}
+    {{- include "app.containerBase" .root | nindent 4 }}
+{{- with .root.Values.nodeAffinity }}
+affinity:
+  nodeAffinity:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+{{- end }}
+
+{{/*
+Shared envFrom list items: the configMap, the celery-urls secret (when celery
+credentials are set), and one secretRef per .Values.secrets.data entry.
+*/}}
+{{- define "app.envFrom" -}}
+- configMapRef:
+    name: {{ include "app.fullname" . }}-configmap
+{{- if and .Values.secrets.enabled (hasKey .Values.secrets.data "celery-credentials") (hasKey (index .Values.secrets.data "celery-credentials") "CELERY_BROKER_PASSWORD") (hasKey (index .Values.secrets.data "celery-credentials") "CELERY_BACKEND_PASSWORD") }}
+- secretRef:
+    name: {{ include "app.fullname" . }}-celery-urls
+{{- end }}
+{{- if .Values.secrets.enabled }}
+{{- range $secretName, $_ := .Values.secrets.data }}
+- secretRef:
+    name: {{ include "app.fullname" $ }}-{{ $secretName }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Shared pod template annotations: podAnnotations, plus a checksum of the file
+secrets so pods roll when one changes. Renders nothing when empty.
+*/}}
+{{- define "app.podAnnotations" -}}
+{{- with .Values.podAnnotations }}
+{{ toYaml . }}
+{{- end }}
+{{- if .Values.fileSecrets.enabled }}
+checksum/file-secrets: {{ include (print .Template.BasePath "/file-secret.yaml") . | sha256sum }}
+{{- end }}
+{{- end }}
+
+{{/*
+Shared container `env:` block from the fileSecrets env; renders nothing when empty.
+*/}}
+{{- define "app.fileSecretsEnv" -}}
+{{- $items := dict -}}
+{{- if .Values.fileSecrets.enabled -}}
+{{- range $name, $spec := .Values.fileSecrets.data -}}
+{{- range $k, $v := ($spec.env | default dict) -}}
+{{- $_ := set $items $k $v -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- if gt (len $items) 0 }}
+env:
+{{- range $k, $v := $items }}
+  - name: {{ $k }}
+    value: {{ $v | quote }}
+{{- end }}
+{{- end -}}
+{{- end }}
+
+{{/*
+Shared fileSecrets volumeMounts list items.
+*/}}
+{{- define "app.fileSecretsVolumeMounts" -}}
+{{- range $name, $spec := .Values.fileSecrets.data }}
+- name: file-secret-{{ $name }}
+  mountPath: {{ $spec.mountPath }}
+  readOnly: true
+{{- end }}
+{{- end }}
+
+{{/*
+Shared fileSecrets pod volumes list items.
+*/}}
+{{- define "app.fileSecretsVolumes" -}}
+{{- range $name, $spec := .Values.fileSecrets.data }}
+- name: file-secret-{{ $name }}
+  secret:
+    secretName: {{ include "app.fullname" $ }}-{{ $name }}
+    defaultMode: {{ $spec.defaultMode | default 0400 }}
+    items:
+      - key: {{ $spec.filename }}
+        path: {{ $spec.filename }}
+{{- end }}
+{{- end }}
+
+{{/*
+Shared pod spec fields: everything but containers and affinity.
+*/}}
+{{- define "app.podSpecBase" -}}
+{{- with .Values.imagePullSecrets }}
+imagePullSecrets:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+serviceAccountName: {{ include "app.serviceAccountName" . }}
+securityContext:
+  {{- toYaml .Values.podSecurityContext | nindent 2 }}
+{{- if and .Values.fileSecrets.enabled .Values.fileSecrets.data }}
+volumes:
+  {{- include "app.fileSecretsVolumes" . | trim | nindent 2 }}
+{{- end }}
+{{- with .Values.nodeSelector }}
+nodeSelector:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- with .Values.tolerations }}
+tolerations:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end }}
+
+{{/*
+Shared container fields: everything but name, command, args, probes and resources.
+*/}}
+{{- define "app.containerBase" -}}
+securityContext:
+  {{- toYaml .Values.securityContext | nindent 2 }}
+image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+imagePullPolicy: {{ .Values.image.pullPolicy }}
+envFrom:
+  {{- include "app.envFrom" . | nindent 2 }}
+{{- with (include "app.fileSecretsEnv" . | trim) }}
+{{ . }}
+{{- end }}
+{{- with .Values.ports }}
+ports:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- if and .Values.fileSecrets.enabled .Values.fileSecrets.data }}
+volumeMounts:
+  {{- include "app.fileSecretsVolumeMounts" . | trim | nindent 2 }}
+{{- end }}
+{{- end }}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "app.serviceAccountName" -}}

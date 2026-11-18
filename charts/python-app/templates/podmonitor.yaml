@@ -1,4 +1,10 @@
 {{- if .Values.podMonitor.enabled }}
+{{- $unscrapedWorkers := list }}
+{{- range $workerName, $entry := .Values.workers }}
+{{- if not (dig "podMonitor" "enabled" true ($entry | default dict)) }}
+{{- $unscrapedWorkers = append $unscrapedWorkers $workerName }}
+{{- end }}
+{{- end }}
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
@@ -12,7 +18,21 @@ metadata:
 spec:
   selector:
     matchLabels:
-      {{- include "app.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+    # The app and its workers (see worker-deployment.yaml).
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values:
+          - {{ include "app.name" . }}
+          - {{ include "app.workerAppName" . }}
+      {{- with $unscrapedWorkers }}
+      # Workers with podMonitor.enabled: false; app pods have no such label, so they match.
+      - key: python-app.io/worker
+        operator: NotIn
+        values:
+          {{- toYaml . | nindent 10 }}
+      {{- end }}
 
   namespaceSelector:
     matchNames:

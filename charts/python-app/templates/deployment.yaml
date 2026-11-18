@@ -40,18 +40,7 @@ spec:
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
-            - configMapRef:
-                name: {{ include "app.fullname" . }}-configmap
-            {{- if and .Values.secrets.enabled (hasKey .Values.secrets.data "celery-credentials") (hasKey (index .Values.secrets.data "celery-credentials") "CELERY_BROKER_PASSWORD") (hasKey (index .Values.secrets.data "celery-credentials") "CELERY_BACKEND_PASSWORD") }}
-            - secretRef:
-                name: {{ include "app.fullname" . }}-celery-urls
-            {{- end }}
-            {{- if .Values.secrets.enabled }}
-            {{- range $secretName, $_ := .Values.secrets.data }}
-            - secretRef:
-                name: {{ include "app.fullname" $ }}-{{ $secretName }}
-            {{- end }}
-            {{- end }}
+            {{- include "app.envFrom" . | nindent 12 }}
           {{- if .Values.fileSecrets.enabled }}
           {{- $envItems := dict }}
           {{- range $name, $spec := .Values.fileSecrets.data }}

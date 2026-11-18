@@ -51,6 +51,25 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+Shared envFrom list items: the configMap, the celery-urls secret (when celery
+credentials are set), and one secretRef per .Values.secrets.data entry.
+*/}}
+{{- define "app.envFrom" -}}
+- configMapRef:
+    name: {{ include "app.fullname" . }}-configmap
+{{- if and .Values.secrets.enabled (hasKey .Values.secrets.data "celery-credentials") (hasKey (index .Values.secrets.data "celery-credentials") "CELERY_BROKER_PASSWORD") (hasKey (index .Values.secrets.data "celery-credentials") "CELERY_BACKEND_PASSWORD") }}
+- secretRef:
+    name: {{ include "app.fullname" . }}-celery-urls
+{{- end }}
+{{- if .Values.secrets.enabled }}
+{{- range $secretName, $_ := .Values.secrets.data }}
+- secretRef:
+    name: {{ include "app.fullname" $ }}-{{ $secretName }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
 Shared pod template annotations: podAnnotations, plus a checksum of the file
 secrets so pods roll when one changes. Renders nothing when empty.
 */}}
